@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROXXIMA TELECOM | Produtividade — Redes</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --azul-900:#0b2c5c;
+  --azul-700:#123a7a;
+  --azul-600:#1a4fa0;
+  --azul-500:#2563c9;
+  --azul-100:#e6edfb;
+  --rosa-600:#e6297c;
+  --rosa-100:#fde5f0;
+  --branco:#ffffff;
+  --cinza-50:#f5f7fb;
+  --cinza-100:#eef1f6;
+  --cinza-200:#e2e6ee;
+  --cinza-400:#a5adba;
+  --cinza-600:#5b6474;
+  --cinza-800:#2b3140;
+  --ok:#18a95a;
+  --alerta:#e0a52c;
+  --critico:#e0293f;
+  --radius:14px;
+  --shadow:0 2px 10px rgba(19,42,90,.06), 0 1px 2px rgba(19,42,90,.05);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Segoe UI',Roboto,Inter,Arial,sans-serif;
+  background:var(--cinza-50);
+  color:var(--cinza-800);
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--cinza-200);border-radius:8px;}
+
+/* ---------- LAYOUT ---------- */
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  width:236px;flex-shrink:0;background:linear-gradient(180deg,var(--azul-900),var(--azul-700));
+  color:#fff;display:flex;flex-direction:column;padding:22px 14px;position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px 22px 8px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:16px;}
+.brand-mark{width:36px;height:36px;border-radius:10px;background:var(--rosa-600);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;}
+.brand-name{font-size:14px;font-weight:700;letter-spacing:.5px;line-height:1.2;}
+.brand-name span{display:block;font-size:10.5px;font-weight:500;opacity:.7;letter-spacing:.6px;}
+.nav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;flex:1;}
+.nav li{border-radius:10px;}
+.nav a{
+  display:flex;align-items:center;gap:11px;padding:10px 12px;color:rgba(255,255,255,.78);
+  text-decoration:none;font-size:13.5px;font-weight:500;border-radius:10px;transition:.15s;cursor:pointer;
+}
+.nav a:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav a.active{background:var(--rosa-600);color:#fff;box-shadow:0 4px 12px rgba(230,41,124,.35);}
+.nav svg{width:17px;height:17px;flex-shrink:0;}
+.sidebar-foot{padding:10px 8px 0;border-top:1px solid rgba(255,255,255,.12);font-size:11px;opacity:.6;}
+
+.main{flex:1;min-width:0;}
+.topbar{
+  background:#fff;border-bottom:1px solid var(--cinza-200);padding:16px 28px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;
+}
+.topbar h1{font-size:19px;margin:0;font-weight:800;color:var(--azul-900);}
+.topbar p{margin:2px 0 0;font-size:12.5px;color:var(--cinza-600);}
+.topbar-actions{display:flex;gap:10px;align-items:center;}
+.pill{
+  background:var(--azul-100);color:var(--azul-700);font-size:11.5px;font-weight:700;
+  padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px;
+}
+.btn{
+  border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.15s;
+}
+.btn-primary{background:var(--azul-600);color:#fff;}
+.btn-primary:hover{background:var(--azul-700);}
+.btn-outline{background:#fff;color:var(--azul-700);border:1px solid var(--cinza-200);}
+.btn-outline:hover{background:var(--azul-100);}
+.btn-pink{background:var(--rosa-600);color:#fff;}
+.btn-pink:hover{opacity:.9;}
+.btn-sm{padding:6px 11px;font-size:12px;}
+
+.content{padding:24px 28px 60px;max-width:1500px;}
+.section-title{font-size:15px;font-weight:800;color:var(--azul-900);margin:30px 0 14px;display:flex;align-items:center;gap:8px;}
+.section-title .bar{width:4px;height:16px;background:var(--rosa-600);border-radius:3px;}
+
+/* ---------- CARDS ---------- */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;}
+.kpi{
+  background:#fff;border-radius:var(--radius);padding:16px 16px;box-shadow:var(--shadow);
+  border:1px solid var(--cinza-200);position:relative;overflow:hidden;
+}
+.kpi::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:var(--azul-500);}
+.kpi.pink::before{background:var(--rosa-600);}
+.kpi .k-label{font-size:11px;font-weight:700;color:var(--cinza-600);text-transform:uppercase;letter-spacing:.4px;}
+.kpi .k-value{font-size:24px;font-weight:800;color:var(--azul-900);margin-top:6px;}
+.kpi .k-sub{font-size:11px;color:var(--cinza-600);margin-top:4px;}
+.kpi .k-icon{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:9px;background:var(--azul-100);display:flex;align-items:center;justify-content:center;}
+.kpi.pink .k-icon{background:var(--rosa-100);}
+.kpi .k-icon svg{width:16px;height:16px;color:var(--azul-600);}
+.kpi.pink .k-icon svg{color:var(--rosa-600);}
+
+/* ---------- FILTER BAR ---------- */
+.filters{
+  background:#fff;border:1px solid var(--cinza-200);border-radius:var(--radius);padding:16px 18px;
+  display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;box-shadow:var(--shadow);
+}
+.f-group{display:flex;flex-direction:column;gap:5px;min-width:150px;}
+.f-group label{font-size:11px;font-weight:700;color:var(--cinza-600);text-transform:uppercase;letter-spacing:.3px;}
+.f-group select,.f-group input{
+  border:1px solid var(--cinza-200);border-radius:9px;padding:8px 10px;font-size:13px;background:#fbfcfe;color:var(--cinza-800);
+}
+.f-group select:focus,.f-group input:focus{outline:2px solid var(--azul-100);border-color:var(--azul-500);}
+.f-actions{margin-left:auto;display:flex;gap:8px;}
+
+/* ---------- GRID / CARDS ---------- */
+.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.card{background:#fff;border:1px solid var(--cinza-200);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
+.card h3{margin:0 0 12px;font-size:14px;font-weight:800;color:var(--azul-900);display:flex;align-items:center;justify-content:space-between;}
+.card h3 small{font-size:11px;font-weight:600;color:var(--cinza-600);}
+
+/* ---------- DAILY QUERY ---------- */
+.daily-box{
+  background:linear-gradient(135deg,var(--azul-900),var(--azul-600));
+  border-radius:16px;padding:26px 28px;color:#fff;position:relative;overflow:hidden;
+}
+.daily-box::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:rgba(230,41,124,.25);border-radius:50%;}
+.daily-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.daily-label{font-size:11.5px;letter-spacing:1px;font-weight:700;opacity:.8;text-transform:uppercase;}
+.daily-value{font-size:52px;font-weight:800;margin:6px 0 2px;line-height:1;}
+.daily-value span{font-size:20px;font-weight:700;opacity:.85;}
+.daily-who{font-size:13.5px;opacity:.9;margin-top:6px;}
+.daily-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px;position:relative;z-index:1;}
+.daily-stat{background:rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;}
+.daily-stat .n{font-size:19px;font-weight:800;}
+.daily-stat .l{font-size:10.5px;opacity:.8;text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
+.daily-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;position:relative;z-index:1;}
+.tag{background:rgba(255,255,255,.16);border-radius:20px;padding:4px 11px;font-size:11.5px;font-weight:600;}
+.daily-empty{text-align:center;padding:40px 10px;color:rgba(255,255,255,.85);position:relative;z-index:1;}
+
+/* ---------- RANKING ---------- */
+.rank-tabs{display:flex;gap:6px;margin-bottom:12px;}
+.rtab{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;background:var(--cinza-100);color:var(--cinza-600);}
+.rtab.active{background:var(--azul-600);color:#fff;}
+.rank-row{
+  display:flex;align-items:center;gap:12px;padding:11px 6px;border-bottom:1px solid var(--cinza-100);
+}
+.rank-row:last-child{border-bottom:none;}
+.rank-pos{width:28px;height:28px;border-radius:8px;background:var(--cinza-100);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;color:var(--cinza-600);flex-shrink:0;}
+.rank-pos.g1{background:#fff2cc;color:#a9781a;}
+.rank-pos.g2{background:#e9edf3;color:#5b6474;}
+.rank-pos.g3{background:#fbe1cc;color:#a15a17;}
+.rank-name{flex:1;min-width:0;}
+.rank-name b{font-size:13px;display:block;color:var(--cinza-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-name span{font-size:11px;color:var(--cinza-600);}
+.rank-bar-wrap{flex:1;height:6px;background:var(--cinza-100);border-radius:6px;overflow:hidden;margin:0 10px;max-width:140px;}
+.rank-bar{height:100%;background:linear-gradient(90deg,var(--azul-500),var(--rosa-600));border-radius:6px;}
+.rank-val{font-weight:800;color:var(--azul-900);font-size:14px;width:64px;text-align:right;flex-shrink:0;}
+
+/* ---------- TABLE ---------- */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12.8px;}
+thead th{
+  text-align:left;padding:10px 12px;background:var(--cinza-50);color:var(--cinza-600);
+  font-weight:700;text-transform:uppercase;font-size:10.6px;letter-spacing:.3px;border-bottom:1px solid var(--cinza-200);
+  cursor:pointer;white-space:nowrap;user-select:none;
+}
+thead th:hover{color:var(--azul-700);}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--cinza-100);color:var(--cinza-800);white-space:nowrap;}
+tbody tr{cursor:pointer;}
+tbody tr:hover{background:var(--azul-100);}
+.badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge.principal{background:var(--azul-100);color:var(--azul-700);}
+.badge.auxiliar{background:var(--rosa-100);color:var(--rosa-600);}
+.badge.semprot{background:var(--cinza-100);color:var(--cinza-600);}
+.badge.comprot{background:#e5f7ed;color:var(--ok);}
+.score-pill{background:var(--cinza-100);border-radius:8px;padding:2px 9px;font-weight:800;color:var(--azul-900);}
+.table-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 4px 0;font-size:12.5px;color:var(--cinza-600);}
+.pager{display:flex;gap:6px;}
+.pager button{border:1px solid var(--cinza-200);background:#fff;border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;}
+.pager button:disabled{opacity:.4;cursor:default;}
+.pager button.active{background:var(--azul-600);color:#fff;border-color:var(--azul-600);}
+.search-input{border:1px solid var(--cinza-200);border-radius:9px;padding:8px 12px 8px 34px;font-size:13px;width:230px;background:#fbfcfe url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="%235b6474" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat 10px center;background-size:14px;}
+
+/* ---------- CALENDAR ---------- */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.cal-dow{font-size:10.5px;font-weight:700;color:var(--cinza-600);text-align:center;padding-bottom:4px;text-transform:uppercase;}
+.cal-day{
+  border-radius:10px;padding:8px 6px;min-height:58px;background:var(--cinza-50);border:1px solid var(--cinza-100);
+  display:flex;flex-direction:column;gap:4px;cursor:pointer;
+}
+.cal-day.empty{background:transparent;border:none;cursor:default;}
+.cal-day .d-num{font-size:11px;font-weight:700;color:var(--cinza-600);}
+.cal-day .d-score{font-size:14px;font-weight:800;color:var(--azul-900);}
+.cal-day.has:hover{outline:2px solid var(--azul-500);}
+.cal-day.lvl-excelente{background:#e5f7ed;border-color:#bfe9d0;}
+.cal-day.lvl-excelente .d-score{color:var(--ok);}
+.cal-day.lvl-bom{background:var(--azul-100);}
+.cal-day.lvl-atencao{background:#fff3dc;}
+.cal-day.lvl-baixo{background:#fde8ea;}
+
+/* ---------- MODAL ---------- */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(11,44,92,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:26px;max-width:520px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25);max-height:88vh;overflow:auto;}
+.modal h2{margin:0 0 4px;font-size:17px;color:var(--azul-900);}
+.modal .m-sub{font-size:12px;color:var(--cinza-600);margin-bottom:16px;}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.m-item{background:var(--cinza-50);border-radius:10px;padding:10px 12px;}
+.m-item label{font-size:10px;font-weight:700;color:var(--cinza-600);text-transform:uppercase;display:block;margin-bottom:3px;}
+.m-item div{font-size:13.5px;font-weight:600;color:var(--cinza-800);word-break:break-word;}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--cinza-600);}
+.modal{position:relative;}
+
+/* upload */
+.uploadbox{
+  border:2px dashed var(--cinza-200);border-radius:12px;padding:22px;text-align:center;background:var(--cinza-50);
+  display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:.15s;
+}
+.uploadbox:hover{border-color:var(--azul-500);background:var(--azul-100);}
+.uploadbox svg{width:30px;height:30px;color:var(--azul-500);}
+.uploadbox .u-title{font-weight:700;color:var(--azul-900);font-size:13.5px;}
+.uploadbox .u-sub{font-size:11.5px;color:var(--cinza-600);}
+#fileInput{display:none;}
+.upload-status{font-size:12.5px;margin-top:8px;padding:8px 12px;border-radius:8px;display:none;}
+.upload-status.ok{display:block;background:#e5f7ed;color:var(--ok);}
+.upload-status.err{display:block;background:#fde8ea;color:var(--critico);}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.info-chip{background:var(--cinza-100);border-radius:9px;padding:8px 12px;font-size:12px;font-weight:600;color:var(--cinza-800);}
+.info-chip b{color:var(--azul-900);}
+
+.empty-note{text-align:center;color:var(--cinza-600);font-size:13px;padding:26px 0;}
+
+@media (max-width:1200px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr);}
+  .grid-2{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:1fr;}
+}
+@media (max-width:760px){
+  .sidebar{display:none;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .content{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">PX</div>
+      <div class="brand-name">PROXXIMA<span>TELECOM · REDES</span></div>
+    </div>
+    <ul class="nav" id="navList">
+      <li><a data-page="dashboard" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard</a></li>
+      <li><a data-page="colaboradores">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 14.5c2.6.2 4.7 2.3 4.9 5"/></svg>
+        Colaboradores</a></li>
+      <li><a data-page="ranking">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21V10M14 21V3M20 21v-7M4 21v-4"/></svg>
+        Ranking</a></li>
+      <li><a data-page="protocolos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5"/></svg>
+        Protocolos</a></li>
+      <li><a data-page="calendario">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Calendário</a></li>
+      <li><a data-page="importar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Importar Excel</a></li>
+    </ul>
+    <div class="sidebar-foot">v1.0 · Dados locais no navegador</div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>PRODUTIVIDADE — REDES</h1>
+        <p>Acompanhamento diário de produtividade dos colaboradores</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="pill" id="periodoPill">📅 03/08/2026 – 01/09/2026</div>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Exportar Excel</button>
+        <button class="btn btn-outline" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+
+    <div class="content" id="pageDashboard">
+
+      <!-- FILTERS -->
+      <div class="filters">
+        <div class="f-group">
+          <label>Colaborador</label>
+          <select id="fColab"><option value="">Todos</option></select>
+        </div>
+        <div class="f-group">
+          <label>Período</label>
+          <select id="fPeriodo">
+            <option value="todos">Todo o período</option>
+            <option value="hoje">Hoje</option>
+            <option value="ontem">Ontem</option>
+            <option value="7d">Últimos 7 dias</option>
+            <option value="30d">Últimos 30 dias</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+        <div class="f-group" id="fDataIniWrap" style="display:none">
+          <label>De</label>
+          <input type="date" id="fDataIni">
+        </div>
+        <div class="f-group" id="fDataFimWrap" style="display:none">
+          <label>Até</label>
+          <input type="date" id="fDataFim">
+        </div>
+        <div class="f-group">
+          <label>Cidade</label>
+          <select id="fCidade"><option value="">Todas</option></select>
+        </div>
+        <div class="f-group">
+          <label>Tipo</label>
+          <select id="fTipo"><option value="">Todos</option></select>
+        </div>
+        <div class="f-group">
+          <label>Solicitação</label>
+          <select id="fSolic"><option value="">Todas</option></select>
+        </div>
+        <div class="f-actions">
+          <button class="btn btn-outline btn-sm" onclick="resetFilters()">Limpar filtros</button>
+        </div>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="kpi-grid" style="margin-top:16px;">
+        <div class="kpi">
+          <div class="k-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/></svg></div>
+          <div class="k-label">Colaboradores</div>
+          <div class="k-value" id="kColab">-</div>
+          <div class="k-sub">na seleção atual</div>
+        </div>
+        <div class="kpi pink">
+          <div class="k-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 6 .9-4.5 4.3 1.1 6-5.6-3-5.6 3 1.1-6L3 8.9 9 8z"/></svg></div>
+          <div class="k-label">Pontuação total</div>
+          <div class="k-value" id="kPontos">-</div>
+          <div class="k-sub" id="kPontosSub">soma da coluna Pontuação</div>
+        </div>
+        <div class="kpi">
+          <div class="k-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 15l3-3 3 2 4-5"/></svg></div>
+          <div class="k-label">Média por atividade</div>
+          <div class="k-value" id="kMedia">-</div>
+          <div class="k-sub">pontos / atividade</div>
+        </div>
+        <div class="kpi">
+          <div class="k-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg></div>
+          <div class="k-label">Atividades</div>
+          <div class="k-value" id="kAtiv">-</div>
+          <div class="k-sub" id="kAtivSub">registros pontuados</div>
+        </div>
+        <div class="kpi">
+          <div class="k-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5"/></svg></div>
+          <div class="k-label">Protocolos</div>
+          <div class="k-value" id="kProt">-</div>
+          <div class="k-sub" id="kProtSub">possuem nº de protocolo</div>
+        </div>
+        <div class="kpi pink">
+          <div class="k-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.9L21 11l-6.6 2.1L12 20l-2.4-6.9L3 11l6.6-2.1z"/></svg></div>
+          <div class="k-label">Melhor desempenho</div>
+          <div class="k-value" id="kMelhor" style="font-size:14.5px;">-</div>
+          <div class="k-sub" id="kMelhorSub">no período</div>
+        </div>
+      </div>
+
+      <!-- CONSULTA DIÁRIA -->
+      <div class="section-title"><span class="bar"></span>Consulta de pontuação diária</div>
+      <div class="grid-2">
+        <div class="daily-box">
+          <div class="daily-top">
+            <div>
+              <div class="daily-label">Pontuação do dia</div>
+              <div class="daily-value" id="dailyScore">–</div>
+              <div class="daily-who" id="dailyWho">Selecione um colaborador e uma data →</div>
+            </div>
+          </div>
+          <div class="daily-stats" id="dailyStats" style="display:none">
+            <div class="daily-stat"><div class="n" id="dAtiv">0</div><div class="l">Atividades</div></div>
+            <div class="daily-stat"><div class="n" id="dProt">0</div><div class="l">Protocolos</div></div>
+            <div class="daily-stat"><div class="n" id="dMedia">0</div><div class="l">Média</div></div>
+            <div class="daily-stat"><div class="n" id="dMaxMin">0 / 0</div><div class="l">Maior / Menor</div></div>
+          </div>
+          <div class="daily-tags" id="dailyCidades"></div>
+          <div class="daily-tags" id="dailySolic"></div>
+        </div>
+        <div class="card">
+          <h3>Selecionar consulta</h3>
+          <div class="f-group" style="margin-bottom:12px;">
+            <label>Colaborador</label>
+            <select id="dqColab"><option value="">Escolha um colaborador</option></select>
+          </div>
+          <div class="f-group">
+            <label>Data</label>
+            <input type="date" id="dqData">
+          </div>
+          <div style="margin-top:16px;font-size:12px;color:var(--cinza-600);line-height:1.6;">
+            Regra oficial: a pontuação diária é a <b>soma da coluna Pontuação</b> de todos os registros do colaborador na data selecionada — atividades sem número de protocolo também são contabilizadas.
+          </div>
+        </div>
+      </div>
+
+      <!-- EVOLUÇÃO + RANKING -->
+      <div class="section-title"><span class="bar"></span>Evolução diária &amp; Ranking</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Evolução da pontuação diária <small id="evoRange"></small></h3>
+          <canvas id="chartEvolucao" height="230"></canvas>
+        </div>
+        <div class="card">
+          <h3>Ranking de produtividade
+            <div class="rank-tabs">
+              <div class="rtab active" data-mode="total">Acumulado</div>
+              <div class="rtab" data-mode="media">Média diária</div>
+            </div>
+          </h3>
+          <div id="rankList"></div>
+        </div>
+      </div>
+
+      <!-- ANALISES -->
+      <div class="section-title"><span class="bar"></span>Análises por Solicitação e Cidade</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Por tipo de solicitação</h3>
+          <canvas id="chartSolic" height="230"></canvas>
+        </div>
+        <div class="card">
+          <h3>Por cidade</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Cidade</th><th>Atividades</th><th>Protocolos</th><th>Pontuação</th><th>Média</th></tr></thead>
+              <tbody id="tblCidade"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETALHAMENTO -->
+      <div class="section-title"><span class="bar"></span>Detalhamento dos registros</div>
+      <div class="card">
+        <h3>
+          Registros
+          <input class="search-input" id="tblSearch" placeholder="Buscar protocolo, colaborador, cidade...">
+        </h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sort="data">Data</th>
+                <th data-sort="datahora">Hora</th>
+                <th data-sort="colaborador">Colaborador</th>
+                <th data-sort="protocolo">Protocolo</th>
+                <th data-sort="solicitacao">Solicitação</th>
+                <th data-sort="cidade">Cidade</th>
+                <th data-sort="tipo">Tipo</th>
+                <th data-sort="pontuacao">Pontuação</th>
+              </tr>
+            </thead>
+            <tbody id="tblBody"></tbody>
+          </table>
+        </div>
+        <div class="table-foot">
+          <div id="tblCount">-</div>
+          <div class="pager" id="tblPager"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PAGE: COLABORADORES -->
+    <div class="content" id="pageColaboradores" style="display:none;">
+      <div class="section-title"><span class="bar"></span>Desempenho por colaborador</div>
+      <div class="grid-3" id="colabCards"></div>
+    </div>
+
+    <!-- PAGE: RANKING -->
+    <div class="content" id="pageRanking" style="display:none;">
+      <div class="filters" style="margin-bottom:16px;">
+        <div class="f-group">
+          <label>Período do ranking</label>
+          <select id="rkPeriodo">
+            <option value="todos">Todo o período</option>
+            <option value="hoje">Hoje</option>
+            <option value="7d">Últimos 7 dias</option>
+            <option value="30d">Últimos 30 dias</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+        <div class="f-group" id="rkIniWrap" style="display:none"><label>De</label><input type="date" id="rkIni"></div>
+        <div class="f-group" id="rkFimWrap" style="display:none"><label>Até</label><input type="date" id="rkFim"></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>🏆 Ranking por pontuação acumulada</h3>
+          <div id="rankFullTotal"></div>
+        </div>
+        <div class="card">
+          <h3>📊 Ranking por média diária</h3>
+          <div id="rankFullMedia"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: PROTOCOLOS -->
+    <div class="content" id="pageProtocolos" style="display:none;">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi"><div class="k-label">Com protocolo</div><div class="k-value" id="pComProt">-</div><div class="k-sub">registros com nº de protocolo</div></div>
+        <div class="kpi pink"><div class="k-label">Sem protocolo</div><div class="k-value" id="pSemProt">-</div><div class="k-sub">atividades pontuadas sem protocolo</div></div>
+        <div class="kpi"><div class="k-label">Total de atividades</div><div class="k-value" id="pTotal">-</div><div class="k-sub">registros pontuados no arquivo</div></div>
+      </div>
+      <div class="section-title"><span class="bar"></span>Todos os registros</div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Colaborador</th><th>Protocolo</th><th>Situação</th><th>Solicitação</th><th>Pontuação</th></tr></thead>
+            <tbody id="protBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: CALENDARIO -->
+    <div class="content" id="pageCalendario" style="display:none;">
+      <div class="filters" style="margin-bottom:16px;">
+        <div class="f-group">
+          <label>Colaborador</label>
+          <select id="calColab"><option value="">Todos</option></select>
+        </div>
+        <div class="f-group">
+          <label>Mês</label>
+          <select id="calMes"></select>
+        </div>
+      </div>
+      <div class="card">
+        <h3 id="calTitle">Calendário de produtividade</h3>
+        <div class="cal-grid" id="calDow"></div>
+        <div class="cal-grid" id="calGrid" style="margin-top:6px;"></div>
+        <div class="chip-row" style="margin-top:14px;">
+          <div class="info-chip"><span style="color:var(--ok)">●</span> Excelente</div>
+          <div class="info-chip"><span style="color:var(--azul-600)">●</span> Bom</div>
+          <div class="info-chip"><span style="color:var(--alerta)">●</span> Atenção</div>
+          <div class="info-chip"><span style="color:var(--critico)">●</span> Baixo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: IMPORTAR -->
+    <div class="content" id="pageImportar" style="display:none;">
+      <div class="grid-2">
+        <div class="card">
+          <h3>Importar novo Excel</h3>
+          <div class="uploadbox" onclick="document.getElementById('fileInput').click()" id="dropZone">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            <div class="u-title">Arraste o arquivo aqui ou clique para selecionar</div>
+            <div class="u-sub">Aceita .xlsx e .xls</div>
+            <button class="btn btn-primary btn-sm" type="button" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Selecionar arquivo</button>
+          </div>
+          <input type="file" id="fileInput" accept=".xlsx,.xls">
+          <div class="upload-status" id="uploadStatus"></div>
+        </div>
+        <div class="card">
+          <h3>Arquivo atual carregado</h3>
+          <div class="chip-row">
+            <div class="info-chip"><b id="curArquivo">Analítico | Protocolos - Produtividade Redes.xlsx</b></div>
+          </div>
+          <div class="chip-row">
+            <div class="info-chip">Registros: <b id="curRegistros">-</b></div>
+            <div class="info-chip">Colaboradores: <b id="curColab">-</b></div>
+            <div class="info-chip">Com protocolo: <b id="curComProt">-</b></div>
+            <div class="info-chip">Sem protocolo: <b id="curSemProt">-</b></div>
+          </div>
+          <div class="chip-row">
+            <div class="info-chip">Período: <b id="curPeriodo">-</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Detalhes do registro</h2>
+    <div class="m-sub">Informações completas da atividade</div>
+    <div class="m-grid" id="modalGrid"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DADOS EMBUTIDOS (extraídos do Analítico | Protocolos - Produtividade Redes.xlsx)
+   ============================================================ */
+let RAW_DATA = [{"protocolo": "8327667", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-10", "datahora": "10-ago-2026 07:44:50", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-10", "datahora": "10-ago-2026 07:44:50", "pontuacao": 1.0}, {"protocolo": "8688119", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-03", "datahora": "03-ago-2026 12:14:07", "pontuacao": 3.0}, {"protocolo": "8692310", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-03", "datahora": "03-ago-2026 09:42:43", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-03", "datahora": "03-ago-2026 09:42:43", "pontuacao": 2.0}, {"protocolo": "8692323", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-03", "datahora": "03-ago-2026 12:09:05", "pontuacao": 4.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-03", "datahora": "03-ago-2026 12:09:05", "pontuacao": 4.0}, {"protocolo": "8692592", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 09:20:17", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 09:20:17", "pontuacao": 3.0}, {"protocolo": "8692641", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-03", "datahora": "03-ago-2026 12:21:54", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-03", "datahora": "03-ago-2026 12:21:54", "pontuacao": 3.0}, {"protocolo": "8693191", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-03", "datahora": "03-ago-2026 16:58:14", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-03", "datahora": "03-ago-2026 16:58:14", "pontuacao": 3.0}, {"protocolo": "8698418", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-04", "datahora": "04-ago-2026 14:43:51", "pontuacao": 3.0}, {"protocolo": "8698495", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-04", "datahora": "04-ago-2026 13:40:34", "pontuacao": 3.0}, {"protocolo": "8698526", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-04", "datahora": "04-ago-2026 13:03:32", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-04", "datahora": "04-ago-2026 13:03:32", "pontuacao": 3.0}, {"protocolo": "8699653", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "CACHOEIRINHA | PE", "escala": "NOR 8~17.S", "data": "2026-08-04", "datahora": "04-ago-2026 16:57:05", "pontuacao": 1.0}, {"protocolo": "8699665", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-04", "datahora": "04-ago-2026 14:09:46", "pontuacao": 1.0}, {"protocolo": "8701245", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 19:19:54", "pontuacao": 7.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 19:19:54", "pontuacao": 7.0}, {"protocolo": "8702189", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-04", "datahora": "04-ago-2026 16:16:32", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-04", "datahora": "04-ago-2026 16:16:32", "pontuacao": 3.0}, {"protocolo": "8703112", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-04", "datahora": "04-ago-2026 21:54:01", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-04", "datahora": "04-ago-2026 21:54:01", "pontuacao": 3.0}, {"protocolo": "8703141", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-05", "datahora": "05-ago-2026 19:14:41", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-05", "datahora": "05-ago-2026 19:14:41", "pontuacao": 3.0}, {"protocolo": "8703150", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-04", "datahora": "04-ago-2026 21:56:53", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-04", "datahora": "04-ago-2026 21:56:53", "pontuacao": 1.0}, {"protocolo": "8705414", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-05", "datahora": "05-ago-2026 13:52:47", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-05", "datahora": "05-ago-2026 13:52:47", "pontuacao": 3.0}, {"protocolo": "8705444", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-05", "datahora": "05-ago-2026 10:27:02", "pontuacao": 4.0}, {"protocolo": "8707085", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-05", "datahora": "05-ago-2026 17:27:27", "pontuacao": 3.0}, {"protocolo": "8709243", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-07", "datahora": "07-ago-2026 10:50:56", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-07", "datahora": "07-ago-2026 10:50:56", "pontuacao": 3.0}, {"protocolo": "8709388", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-06", "datahora": "06-ago-2026 09:23:17", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-06", "datahora": "06-ago-2026 09:23:17", "pontuacao": 3.0}, {"protocolo": "8709476", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-06", "datahora": "06-ago-2026 14:12:52", "pontuacao": 3.0}, {"protocolo": "8710662", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "BELO JARDIM | PE", "escala": "NOR 8~17.S", "data": "2026-08-06", "datahora": "06-ago-2026 20:02:38", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "BELO JARDIM | PE", "escala": "NOR 8~17.S", "data": "2026-08-06", "datahora": "06-ago-2026 20:02:38", "pontuacao": 3.0}, {"protocolo": "8710688", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-07", "datahora": "07-ago-2026 12:02:29", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-07", "datahora": "07-ago-2026 12:02:29", "pontuacao": 3.0}, {"protocolo": "8711385", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-07", "datahora": "07-ago-2026 08:48:40", "pontuacao": 4.0}, {"protocolo": "8711536", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-06", "datahora": "06-ago-2026 15:37:11", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-06", "datahora": "06-ago-2026 15:37:11", "pontuacao": 1.0}, {"protocolo": "8713050", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-06", "datahora": "06-ago-2026 17:08:50", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-06", "datahora": "06-ago-2026 17:08:50", "pontuacao": 1.0}, {"protocolo": "8716011", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 13:58:23", "pontuacao": 3.0}, {"protocolo": "8716185", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 10:07:52", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 10:07:52", "pontuacao": 2.0}, {"protocolo": "8716218", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 13:50:31", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 13:50:31", "pontuacao": 2.0}, {"protocolo": "8716252", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 16:08:05", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 16:08:05", "pontuacao": 2.0}, {"protocolo": "8716291", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 12:02:01", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 12:02:01", "pontuacao": 2.0}, {"protocolo": "8716315", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 10:37:42", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 10:37:42", "pontuacao": 2.0}, {"protocolo": "8719924", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-07", "datahora": "07-ago-2026 17:45:06", "pontuacao": 3.0}, {"protocolo": "8721789", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "SOBRE AVISO", "data": "2026-08-08", "datahora": "08-ago-2026 16:20:38", "pontuacao": 3.0}, {"protocolo": "8723969", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "JUCATI | PE", "escala": "DSR", "data": "2026-08-16", "datahora": "16-ago-2026 15:14:00", "pontuacao": 1.0}, {"protocolo": "8723973", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-11", "datahora": "11-ago-2026 08:37:37", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-11", "datahora": "11-ago-2026 08:37:37", "pontuacao": 1.0}, {"protocolo": "8724094", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-10", "datahora": "10-ago-2026 14:25:58", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-10", "datahora": "10-ago-2026 14:25:58", "pontuacao": 1.0}, {"protocolo": "8726329", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-10", "datahora": "10-ago-2026 12:32:43", "pontuacao": 5.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-10", "datahora": "10-ago-2026 12:32:43", "pontuacao": 5.0}, {"protocolo": "8726343", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-10", "datahora": "10-ago-2026 16:17:40", "pontuacao": 9.0}, {"protocolo": "8726358", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-10", "datahora": "10-ago-2026 10:38:02", "pontuacao": 3.0}, {"protocolo": "8727215", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-11", "datahora": "11-ago-2026 17:39:57", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-11", "datahora": "11-ago-2026 17:39:57", "pontuacao": 1.0}, {"protocolo": "8728663", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-10", "datahora": "10-ago-2026 11:53:34", "pontuacao": 3.0}, {"protocolo": "8732471", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - RÁDIO MANUTENÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-11", "datahora": "11-ago-2026 13:17:16", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - RÁDIO MANUTENÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-11", "datahora": "11-ago-2026 13:17:16", "pontuacao": 3.0}, {"protocolo": "8737452", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 14:36:05", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 14:36:05", "pontuacao": 1.0}, {"protocolo": "8737533", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 06:53:33", "pontuacao": 8.0}, {"protocolo": "8737728", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 12:31:58", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 12:31:58", "pontuacao": 3.0}, {"protocolo": "8738173", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-11", "datahora": "11-ago-2026 17:33:25", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-11", "datahora": "11-ago-2026 17:33:25", "pontuacao": 3.0}, {"protocolo": "8738342", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 12:25:23", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 12:25:23", "pontuacao": 1.0}, {"protocolo": "8738661", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 08:49:15", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-12", "datahora": "12-ago-2026 08:49:15", "pontuacao": 2.0}, {"protocolo": "8742815", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 11:20:33", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 11:20:33", "pontuacao": 2.0}, {"protocolo": "8743916", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 19:06:16", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 19:06:16", "pontuacao": 2.0}, {"protocolo": "8743926", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 14:50:12", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 14:50:12", "pontuacao": 2.0}, {"protocolo": "8743945", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 15:13:28", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 15:13:28", "pontuacao": 2.0}, {"protocolo": "8743963", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 16:54:08", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - INSPEÇÃO POP/TORRE", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-12", "datahora": "12-ago-2026 16:54:08", "pontuacao": 2.0}, {"protocolo": "8744663", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 13:35:13", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 13:35:13", "pontuacao": 3.0}, {"protocolo": "8745538", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-13", "datahora": "13-ago-2026 15:13:10", "pontuacao": 3.0}, {"protocolo": "8748525", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-13", "datahora": "13-ago-2026 19:25:23", "pontuacao": 3.0}, {"protocolo": "8749354", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 17:53:54", "pontuacao": 6.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 17:53:54", "pontuacao": 6.0}, {"protocolo": "8749384", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-13", "datahora": "13-ago-2026 19:21:09", "pontuacao": 6.0}, {"protocolo": "8749883", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 17:51:03", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 17:51:03", "pontuacao": 1.0}, {"protocolo": "8749891", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-24", "datahora": "24-ago-2026 13:59:15", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-24", "datahora": "24-ago-2026 13:59:15", "pontuacao": 1.0}, {"protocolo": "8752159", "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 14:05:41", "pontuacao": 6.0}, {"protocolo": "8752386", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 14:16:17", "pontuacao": 6.0}, {"protocolo": "8752917", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "SOBRE AVISO", "data": "2026-08-15", "datahora": "15-ago-2026 12:43:17", "pontuacao": 4.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "SOBRE AVISO", "data": "2026-08-15", "datahora": "15-ago-2026 12:43:17", "pontuacao": 4.0}, {"protocolo": "8754362", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 18:04:35", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 18:04:35", "pontuacao": 3.0}, {"protocolo": "8754402", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "BELO JARDIM | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 13:45:38", "pontuacao": 5.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "BELO JARDIM | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-18", "datahora": "18-ago-2026 13:45:38", "pontuacao": 5.0}, {"protocolo": "8754597", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-14", "datahora": "14-ago-2026 20:53:39", "pontuacao": 6.0}, {"protocolo": "8755070", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 14:17:34", "pontuacao": 1.0}, {"protocolo": "8755237", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "BELO JARDIM | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 10:21:11", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "BELO JARDIM | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-18", "datahora": "18-ago-2026 10:21:11", "pontuacao": 3.0}, {"protocolo": "8757454", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 11:56:25", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 11:56:25", "pontuacao": 1.0}, {"protocolo": "8757855", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-14", "datahora": "14-ago-2026 20:57:09", "pontuacao": 5.0}, {"protocolo": "8757866", "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 17:40:01", "pontuacao": 3.0}, {"protocolo": "8757868", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-14", "datahora": "14-ago-2026 18:23:27", "pontuacao": 3.0}, {"protocolo": "8760939", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "SOBRE AVISO", "data": "2026-08-15", "datahora": "15-ago-2026 15:05:52", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "SOBRE AVISO", "data": "2026-08-15", "datahora": "15-ago-2026 15:05:52", "pontuacao": 3.0}, {"protocolo": "8762182", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "SOBRE AVISO", "data": "2026-08-15", "datahora": "15-ago-2026 22:07:29", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "SOBRE AVISO", "data": "2026-08-15", "datahora": "15-ago-2026 22:07:29", "pontuacao": 3.0}, {"protocolo": "8763135", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 12:37:49", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 12:37:49", "pontuacao": 3.0}, {"protocolo": "8764126", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-17", "datahora": "17-ago-2026 14:22:51", "pontuacao": 6.0}, {"protocolo": "8764903", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-17", "datahora": "17-ago-2026 14:00:23", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-17", "datahora": "17-ago-2026 14:00:23", "pontuacao": 3.0}, {"protocolo": "8765333", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 14:59:31", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 14:59:31", "pontuacao": 1.0}, {"protocolo": "8767290", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-17", "datahora": "17-ago-2026 19:32:19", "pontuacao": 3.0}, {"protocolo": "8768078", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-17", "datahora": "17-ago-2026 18:14:38", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-17", "datahora": "17-ago-2026 18:14:38", "pontuacao": 3.0}, {"protocolo": "8770405", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 10:37:13", "pontuacao": 3.0}, {"protocolo": "8773048", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "JUCATI | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-18", "datahora": "18-ago-2026 20:10:02", "pontuacao": 1.0}, {"protocolo": "8773062", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 15:00:06", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 15:00:06", "pontuacao": 1.0}, {"protocolo": "8773335", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 14:36:42", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 14:36:42", "pontuacao": 2.0}, {"protocolo": "8773358", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 14:42:17", "pontuacao": 4.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 14:42:17", "pontuacao": 4.0}, {"protocolo": "8773378", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 14:47:32", "pontuacao": 4.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-18", "datahora": "18-ago-2026 14:47:32", "pontuacao": 4.0}, {"protocolo": "8776891", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-19", "datahora": "19-ago-2026 10:49:06", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-19", "datahora": "19-ago-2026 10:49:06", "pontuacao": 3.0}, {"protocolo": "8777322", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "JUPI | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 21:20:20", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "JUPI | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 21:20:20", "pontuacao": 1.0}, {"protocolo": "8778003", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-19", "datahora": "19-ago-2026 12:35:18", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-19", "datahora": "19-ago-2026 12:35:18", "pontuacao": 3.0}, {"protocolo": "8778678", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 21:24:49", "pontuacao": 4.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-19", "datahora": "19-ago-2026 21:24:49", "pontuacao": 4.0}, {"protocolo": "8779203", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-19", "datahora": "19-ago-2026 18:01:37", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-19", "datahora": "19-ago-2026 18:01:37", "pontuacao": 3.0}, {"protocolo": "8779844", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-19", "datahora": "19-ago-2026 19:04:59", "pontuacao": 4.0}, {"protocolo": "8780175", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-21", "datahora": "21-ago-2026 09:02:35", "pontuacao": 3.0}, {"protocolo": "8782359", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-20", "datahora": "20-ago-2026 15:00:06", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-20", "datahora": "20-ago-2026 15:00:06", "pontuacao": 3.0}, {"protocolo": "8782437", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-20", "datahora": "20-ago-2026 12:55:48", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-20", "datahora": "20-ago-2026 12:55:48", "pontuacao": 3.0}, {"protocolo": "8784314", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-20", "datahora": "20-ago-2026 16:30:21", "pontuacao": 8.0}, {"protocolo": "8784325", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-20", "datahora": "20-ago-2026 16:35:03", "pontuacao": 3.0}, {"protocolo": "8785588", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-24", "datahora": "24-ago-2026 17:26:18", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-24", "datahora": "24-ago-2026 17:26:18", "pontuacao": 1.0}, {"protocolo": "8787252", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "SOBRE AVISO", "data": "2026-08-22", "datahora": "22-ago-2026 21:24:14", "pontuacao": 8.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "SOBRE AVISO", "data": "2026-08-22", "datahora": "22-ago-2026 21:24:14", "pontuacao": 8.0}, {"protocolo": "8787279", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 13:57:08", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 13:57:08", "pontuacao": 3.0}, {"protocolo": "8787313", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 12:29:54", "pontuacao": 4.0}, {"protocolo": "8788586", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-24", "datahora": "24-ago-2026 09:09:02", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-24", "datahora": "24-ago-2026 09:09:02", "pontuacao": 1.0}, {"protocolo": "8789727", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 22:12:55", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 22:12:55", "pontuacao": 3.0}, {"protocolo": "8789781", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 16:43:32", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 16:43:32", "pontuacao": 3.0}, {"protocolo": "8789798", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-21", "datahora": "21-ago-2026 16:27:07", "pontuacao": 3.0}, {"protocolo": "8790277", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 16:16:43", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 16:16:43", "pontuacao": 1.0}, {"protocolo": "8790301", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 13:46:26", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 13:46:26", "pontuacao": 1.0}, {"protocolo": "8790331", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "SOBRE AVISO", "data": "2026-08-22", "datahora": "22-ago-2026 21:28:22", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "SOBRE AVISO", "data": "2026-08-22", "datahora": "22-ago-2026 21:28:22", "pontuacao": 1.0}, {"protocolo": "8790790", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-25", "datahora": "25-ago-2026 18:49:23", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-25", "datahora": "25-ago-2026 18:49:23", "pontuacao": 3.0}, {"protocolo": "8796276", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-24", "datahora": "24-ago-2026 19:42:38", "pontuacao": 9.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-24", "datahora": "24-ago-2026 19:42:38", "pontuacao": 9.0}, {"protocolo": "8796281", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-25", "datahora": "25-ago-2026 19:48:57", "pontuacao": 8.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-25", "datahora": "25-ago-2026 19:48:57", "pontuacao": 8.0}, {"protocolo": "8796282", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-24", "datahora": "24-ago-2026 17:33:24", "pontuacao": 4.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-24", "datahora": "24-ago-2026 17:33:24", "pontuacao": 4.0}, {"protocolo": "8796922", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-27", "datahora": "27-ago-2026 12:00:53", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-27", "datahora": "27-ago-2026 12:00:53", "pontuacao": 1.0}, {"protocolo": "8801940", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-25", "datahora": "25-ago-2026 10:18:11", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-25", "datahora": "25-ago-2026 10:18:11", "pontuacao": 2.0}, {"protocolo": "8804081", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-25", "datahora": "25-ago-2026 16:23:58", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-25", "datahora": "25-ago-2026 16:23:58", "pontuacao": 3.0}, {"protocolo": "8805259", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 12:49:31", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 12:49:31", "pontuacao": 3.0}, {"protocolo": "8807738", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 14:49:58", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 14:49:58", "pontuacao": 3.0}, {"protocolo": "8807741", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 14:42:23", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-26", "datahora": "26-ago-2026 14:42:23", "pontuacao": 1.0}, {"protocolo": "8807988", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-27", "datahora": "27-ago-2026 10:15:41", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-27", "datahora": "27-ago-2026 10:15:41", "pontuacao": 1.0}, {"protocolo": "8808078", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-26", "datahora": "26-ago-2026 12:38:15", "pontuacao": 4.0}, {"protocolo": "8811673", "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-26", "datahora": "26-ago-2026 18:14:04", "pontuacao": 1.0}, {"protocolo": "8811691", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-27", "datahora": "27-ago-2026 09:43:28", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-27", "datahora": "27-ago-2026 09:43:28", "pontuacao": 3.0}, {"protocolo": "8814036", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-27", "datahora": "27-ago-2026 17:44:29", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-27", "datahora": "27-ago-2026 17:44:29", "pontuacao": 3.0}, {"protocolo": "8819071", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 16:27:48", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 16:27:48", "pontuacao": 3.0}, {"protocolo": "8819688", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "PONTO NOVO | BA", "escala": "NOR 8~18 S.A", "data": "2026-08-28", "datahora": "28-ago-2026 16:47:55", "pontuacao": 5.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "PONTO NOVO | BA", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 16:47:55", "pontuacao": 5.0}, {"protocolo": "8821688", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 17:34:00", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 17:34:00", "pontuacao": 2.0}, {"protocolo": "8822525", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "JUPI | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 21:07:44", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "JUPI | PE", "escala": "NOR 8~17.S", "data": "2026-08-28", "datahora": "28-ago-2026 21:07:44", "pontuacao": 3.0}, {"protocolo": "8824394", "colaborador": "EDVALDO MARLOS XAVIER MUNIZ", "id": "75", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "SOBRE AVISO", "data": "2026-08-29", "datahora": "29-ago-2026 16:30:41", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "SOBRE AVISO", "data": "2026-08-29", "datahora": "29-ago-2026 16:30:41", "pontuacao": 3.0}, {"protocolo": "8827463", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "SANTA CRUZ | RN", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 10:05:21", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA RÁDIO", "cidade": "SANTA CRUZ | RN", "escala": "NOR 8~17 S.A", "data": "2026-08-31", "datahora": "31-ago-2026 10:05:21", "pontuacao": 3.0}, {"protocolo": "8828245", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 12:50:10", "pontuacao": 5.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 12:50:10", "pontuacao": 5.0}, {"protocolo": "8829742", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 11:53:15", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-31", "datahora": "31-ago-2026 11:53:15", "pontuacao": 1.0}, {"protocolo": "8829783", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 15:06:26", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 15:06:26", "pontuacao": 3.0}, {"protocolo": "8833399", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 19:34:59", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-31", "datahora": "31-ago-2026 19:34:59", "pontuacao": 3.0}, {"protocolo": "8833438", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 19:40:21", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-31", "datahora": "31-ago-2026 19:40:21", "pontuacao": 1.0}, {"protocolo": "8833614", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-08-31", "datahora": "31-ago-2026 19:47:21", "pontuacao": 1.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - AMPLIAÇÃO", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-08-31", "datahora": "31-ago-2026 19:47:21", "pontuacao": 1.0}, {"protocolo": "8835002", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17 S.A", "data": "2026-09-01", "datahora": "01-set-2026 11:15:30", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-09-01", "datahora": "01-set-2026 11:15:30", "pontuacao": 3.0}, {"protocolo": "8835391", "colaborador": "EFRAIM PESSOA DE BARROS SILVA", "id": "80", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-09-01", "datahora": "01-set-2026 17:41:50", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "LEANDRO TAVARES DE SOUZA", "id": "172050", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - MANUTENÇÃO CORRETIVA FIBRA", "cidade": "LAJEDO | PE", "escala": "NOR 8~17.S", "data": "2026-09-01", "datahora": "01-set-2026 17:41:50", "pontuacao": 3.0}, {"protocolo": "8837465", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17 S.A", "data": "2026-09-01", "datahora": "01-set-2026 12:37:36", "pontuacao": 2.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - SERVIÇOS DIVERSOS", "cidade": "GARANHUNS | PE", "escala": "NOR 8~17.S", "data": "2026-09-01", "datahora": "01-set-2026 12:37:36", "pontuacao": 2.0}, {"protocolo": "8839793", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17 S.A", "data": "2026-09-01", "datahora": "01-set-2026 15:32:51", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "SÃO BENTO DO UNA | PE", "escala": "NOR 8~17.S", "data": "2026-09-01", "datahora": "01-set-2026 15:32:51", "pontuacao": 3.0}, {"protocolo": "8839829", "colaborador": "GENIBERG LIMA DA SILVA", "id": "340203", "tipo": "AUXILIAR", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "JUPI | PE", "escala": "NOR 8~17 S.A", "data": "2026-09-01", "datahora": "01-set-2026 18:07:53", "pontuacao": 3.0}, {"protocolo": null, "colaborador": "GILMAR NOGUEIRA PEREIRA", "id": "254", "tipo": "PRINCIPAL", "solicitacao": "REDES/TI - CORRETIVA FIBRA", "cidade": "JUPI | PE", "escala": "NOR 8~17.S", "data": "2026-09-01", "datahora": "01-set-2026 18:07:53", "pontuacao": 3.0}];
+
+let charts = {};
+
+/* ---------- CONFIG DE DESEMPENHO (fácil de alterar) ---------- */
+const PERFORMANCE_CONFIG = {
+  excelente: 20,   // pontuação diária >= 20 -> excelente
+  bom: 10,         // pontuação diária >= 10 -> bom
+  atencao: 1       // pontuação diária >= 1  -> atenção; abaixo disso -> baixo/sem atividade
+};
+function nivelDesempenho(score){
+  if(score >= PERFORMANCE_CONFIG.excelente) return 'excelente';
+  if(score >= PERFORMANCE_CONFIG.bom) return 'bom';
+  if(score >= PERFORMANCE_CONFIG.atencao) return 'atencao';
+  return 'baixo';
+}
+
+/* ---------- HELPERS ---------- */
+const fmtNum = n => Number(n).toLocaleString('pt-BR',{maximumFractionDigits:2});
+const fmtBR = d => { const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; };
+const todayISO = () => new Date().toISOString().slice(0,10);
+
+function uniqueSorted(arr){ return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt')); }
+
+function populateSelect(sel, values, placeholder){
+  sel.innerHTML = `<option value="">${placeholder}</option>` + values.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('');
+}
+
+function fillFilterOptions(){
+  const colabs = uniqueSorted(RAW_DATA.map(r=>r.colaborador));
+  const cidades = uniqueSorted(RAW_DATA.map(r=>r.cidade));
+  const tipos = uniqueSorted(RAW_DATA.map(r=>r.tipo));
+  const solics = uniqueSorted(RAW_DATA.map(r=>r.solicitacao));
+
+  populateSelect(document.getElementById('fColab'), colabs, 'Todos');
+  populateSelect(document.getElementById('fCidade'), cidades, 'Todas');
+  populateSelect(document.getElementById('fTipo'), tipos, 'Todos');
+  populateSelect(document.getElementById('fSolic'), solics, 'Todas');
+  populateSelect(document.getElementById('dqColab'), colabs, 'Escolha um colaborador');
+  populateSelect(document.getElementById('calColab'), colabs, 'Todos');
+
+  const datas = uniqueSorted(RAW_DATA.map(r=>r.data)).sort();
+  if(datas.length){
+    document.getElementById('periodoPill').textContent = `📅 ${fmtBR(datas[0])} – ${fmtBR(datas[datas.length-1])}`;
+  }
+
+  // meses disponíveis para calendário
+  const meses = uniqueSorted(RAW_DATA.map(r=>r.data.slice(0,7)));
+  const calMes = document.getElementById('calMes');
+  calMes.innerHTML = meses.map(m=>`<option value="${m}">${mesLabel(m)}</option>`).join('');
+  if(meses.length) calMes.value = meses[meses.length-1];
+}
+
+const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function mesLabel(m){ const [y,mm]=m.split('-'); return `${MESES_PT[parseInt(mm,10)-1]} / ${y}`; }
+
+/* ---------- FILTER STATE ---------- */
+function getFilters(){
+  return {
+    colab: document.getElementById('fColab').value,
+    periodo: document.getElementById('fPeriodo').value,
+    dataIni: document.getElementById('fDataIni').value,
+    dataFim: document.getElementById('fDataFim').value,
+    cidade: document.getElementById('fCidade').value,
+    tipo: document.getElementById('fTipo').value,
+    solic: document.getElementById('fSolic').value,
+  };
+}
+
+function periodoRange(periodo, custIni, custFim){
+  const datas = uniqueSorted(RAW_DATA.map(r=>r.data)).sort();
+  if(!datas.length) return [null,null];
+  const maxData = datas[datas.length-1];
+  const maxDate = new Date(maxData+'T00:00:00');
+  let ini=null, fim=null;
+  if(periodo==='hoje'){ ini=maxData; fim=maxData; }
+  else if(periodo==='ontem'){
+    const d = new Date(maxDate); d.setDate(d.getDate()-1);
+    ini = d.toISOString().slice(0,10); fim = ini;
+  } else if(periodo==='7d'){
+    const d = new Date(maxDate); d.setDate(d.getDate()-6);
+    ini = d.toISOString().slice(0,10); fim = maxData;
+  } else if(periodo==='30d'){
+    const d = new Date(maxDate); d.setDate(d.getDate()-29);
+    ini = d.toISOString().slice(0,10); fim = maxData;
+  } else if(periodo==='custom'){
+    ini = custIni || datas[0]; fim = custFim || maxData;
+  } else {
+    ini = datas[0]; fim = maxData;
+  }
+  return [ini,fim];
+}
+
+function applyFilters(){
+  const f = getFilters();
+  const [ini,fim] = periodoRange(f.periodo, f.dataIni, f.dataFim);
+  return RAW_DATA.filter(r=>{
+    if(f.colab && r.colaborador!==f.colab) return false;
+    if(f.cidade && r.cidade!==f.cidade) return false;
+    if(f.tipo && r.tipo!==f.tipo) return false;
+    if(f.solic && r.solicitacao!==f.solic) return false;
+    if(ini && r.data < ini) return false;
+    if(fim && r.data > fim) return false;
+    return true;
+  });
+}
+
+/* ---------- KPIs ---------- */
+function renderKPIs(rows){
+  const colabs = new Set(rows.map(r=>r.colaborador));
+  const totalPontos = rows.reduce((s,r)=>s+r.pontuacao,0);
+  const comProt = rows.filter(r=>r.protocolo).length;
+  document.getElementById('kColab').textContent = colabs.size;
+  document.getElementById('kPontos').textContent = fmtNum(totalPontos);
+  document.getElementById('kMedia').textContent = rows.length? fmtNum(totalPontos/rows.length):'0';
+  document.getElementById('kAtiv').textContent = rows.length;
+  document.getElementById('kAtivSub').textContent = `de ${RAW_DATA.length} no arquivo`;
+  document.getElementById('kProt').textContent = comProt;
+  document.getElementById('kProtSub').textContent = `${rows.length-comProt} sem protocolo`;
+
+  // melhor desempenho no período (por pontuação acumulada)
+  const byColab = {};
+  rows.forEach(r=>{ byColab[r.colaborador]=(byColab[r.colaborador]||0)+r.pontuacao; });
+  const entries = Object.entries(byColab).sort((a,b)=>b[1]-a[1]);
+  if(entries.length){
+    document.getElementById('kMelhor').textContent = entries[0][0];
+    document.getElementById('kMelhorSub').textContent = `${fmtNum(entries[0][1])} pontos no período`;
+  } else {
+    document.getElementById('kMelhor').textContent = '-';
+    document.getElementById('kMelhorSub').textContent = 'sem dados';
+  }
+}
+
+/* ---------- CONSULTA DIÁRIA ---------- */
+function renderDailyQuery(){
+  const colab = document.getElementById('dqColab').value;
+  const data = document.getElementById('dqData').value;
+  const scoreEl = document.getElementById('dailyScore');
+  const whoEl = document.getElementById('dailyWho');
+  const statsEl = document.getElementById('dailyStats');
+  const cidadesEl = document.getElementById('dailyCidades');
+  const solicEl = document.getElementById('dailySolic');
+
+  if(!colab || !data){
+    scoreEl.innerHTML = '–';
+    whoEl.textContent = 'Selecione um colaborador e uma data →';
+    statsEl.style.display='none';
+    cidadesEl.innerHTML=''; solicEl.innerHTML='';
+    return;
+  }
+  const regs = RAW_DATA.filter(r=>r.colaborador===colab && r.data===data);
+  if(!regs.length){
+    scoreEl.innerHTML = '0 <span>pontos</span>';
+    whoEl.textContent = `${colab} — ${fmtBR(data)}: Nenhuma atividade encontrada para este período.`;
+    statsEl.style.display='none';
+    cidadesEl.innerHTML=''; solicEl.innerHTML='';
+    return;
+  }
+  const total = regs.reduce((s,r)=>s+r.pontuacao,0);
+  const prot = regs.filter(r=>r.protocolo).length;
+  const media = total/regs.length;
+  const max = Math.max(...regs.map(r=>r.pontuacao));
+  const min = Math.min(...regs.map(r=>r.pontuacao));
+
+  scoreEl.innerHTML = `${fmtNum(total)} <span>pontos</span>`;
+  whoEl.textContent = `${colab} — ${fmtBR(data)}`;
+  statsEl.style.display='grid';
+  document.getElementById('dAtiv').textContent = regs.length;
+  document.getElementById('dProt').textContent = prot;
+  document.getElementById('dMedia').textContent = fmtNum(media);
+  document.getElementById('dMaxMin').textContent = `${max} / ${min}`;
+
+  const cidades = uniqueSorted(regs.map(r=>r.cidade));
+  const solics = uniqueSorted(regs.map(r=>r.solicitacao));
+  cidadesEl.innerHTML = cidades.map(c=>`<div class="tag">📍 ${c}</div>`).join('');
+  solicEl.innerHTML = solics.map(s=>`<div class="tag">🛠 ${s}</div>`).join('');
+}
+
+/* ---------- EVOLUÇÃO ---------- */
+function renderEvolucao(rows){
+  const byDate = {};
+  rows.forEach(r=>{
+    if(!byDate[r.data]) byDate[r.data]={pontos:0,ativ:0,prot:0};
+    byDate[r.data].pontos += r.pontuacao;
+    byDate[r.data].ativ += 1;
+    if(r.protocolo) byDate[r.data].prot += 1;
+  });
+  const datas = Object.keys(byDate).sort();
+  document.getElementById('evoRange').textContent = datas.length? `${fmtBR(datas[0])} a ${fmtBR(datas[datas.length-1])}`:'';
+
+  const ctx = document.getElementById('chartEvolucao').getContext('2d');
+  if(charts.evolucao) charts.evolucao.destroy();
+  charts.evolucao = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels: datas.map(fmtBR),
+      datasets:[{
+        label:'Pontuação diária',
+        data: datas.map(d=>byDate[d].pontos),
+        borderColor:'#2563c9',
+        backgroundColor:'rgba(37,99,201,.12)',
+        tension:.35, fill:true, pointRadius:3, pointBackgroundColor:'#e6297c'
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            afterLabel:(item)=>{
+              const d = datas[item.dataIndex];
+              return [`Atividades: ${byDate[d].ativ}`,`Protocolos: ${byDate[d].prot}`];
+            }
+          }
+        }
+      },
+      scales:{ y:{beginAtZero:true, grid:{color:'#eef1f6'}}, x:{grid:{display:false}} }
+    }
+  });
+}
+
+/* ---------- RANKING (mini, dashboard) ---------- */
+let rankMode='total';
+function computeRanking(rows){
+  const byColab = {};
+  rows.forEach(r=>{
+    if(!byColab[r.colaborador]) byColab[r.colaborador]={total:0,ativ:0,prot:0,dias:new Set()};
+    byColab[r.colaborador].total += r.pontuacao;
+    byColab[r.colaborador].ativ += 1;
+    if(r.protocolo) byColab[r.colaborador].prot += 1;
+    byColab[r.colaborador].dias.add(r.data);
+  });
+  return Object.entries(byColab).map(([nome,v])=>({
+    nome, total:v.total, ativ:v.ativ, prot:v.prot, dias:v.dias.size,
+    media: v.dias.size? v.total/v.dias.size : 0
+  }));
+}
+
+function medalClass(i){
+  return i===0?'g1':i===1?'g2':i===2?'g3':'';
+}
+function medalIcon(i){
+  return i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+}
+
+function renderRankMini(rows){
+  const data = computeRanking(rows);
+  const sorted = [...data].sort((a,b)=> rankMode==='total' ? b.total-a.total : b.media-a.media);
+  const max = sorted.length? (rankMode==='total'?sorted[0].total:sorted[0].media) : 1;
+  const el = document.getElementById('rankList');
+  if(!sorted.length){ el.innerHTML = '<div class="empty-note">Sem dados para o filtro selecionado.</div>'; return; }
+  el.innerHTML = sorted.map((c,i)=>{
+    const val = rankMode==='total'? c.total : c.media;
+    const pct = max? (val/max*100):0;
+    return `<div class="rank-row">
+      <div class="rank-pos ${medalClass(i)}">${medalIcon(i)}</div>
+      <div class="rank-name"><b>${c.nome}</b><span>${c.ativ} atividades · ${c.dias} dias</span></div>
+      <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%"></div></div>
+      <div class="rank-val">${fmtNum(val)}</div>
+    </div>`;
+  }).join('');
+}
+
+document.querySelectorAll('.rtab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.rtab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    rankMode = t.dataset.mode;
+    renderRankMini(applyFilters());
+  });
+});
+
+/* ---------- SOLICITAÇÃO CHART ---------- */
+function renderSolic(rows){
+  const by = {};
+  rows.forEach(r=>{
+    if(!by[r.solicitacao]) by[r.solicitacao]={qtd:0,pontos:0};
+    by[r.solicitacao].qtd+=1; by[r.solicitacao].pontos+=r.pontuacao;
+  });
+  const labels = Object.keys(by).sort((a,b)=>by[b].pontos-by[a].pontos);
+  const ctx = document.getElementById('chartSolic').getContext('2d');
+  if(charts.solic) charts.solic.destroy();
+  charts.solic = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels: labels.map(l=>l.replace('REDES/TI - ','')),
+      datasets:[{
+        label:'Pontuação total',
+        data: labels.map(l=>by[l].pontos),
+        backgroundColor:'#2563c9',
+        borderRadius:6,
+        maxBarThickness:34
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ afterLabel:(item)=>{
+          const l = labels[item.dataIndex];
+          return [`Atividades: ${by[l].qtd}`, `Média: ${fmtNum(by[l].pontos/by[l].qtd)}`];
+        }}}
+      },
+      scales:{ x:{beginAtZero:true, grid:{color:'#eef1f6'}}, y:{grid:{display:false}} }
+    }
+  });
+}
+
+/* ---------- CIDADE TABLE ---------- */
+function renderCidade(rows){
+  const by = {};
+  rows.forEach(r=>{
+    if(!by[r.cidade]) by[r.cidade]={ativ:0,prot:0,pontos:0};
+    by[r.cidade].ativ+=1; by[r.cidade].pontos+=r.pontuacao;
+    if(r.protocolo) by[r.cidade].prot+=1;
+  });
+  const rowsHtml = Object.entries(by).sort((a,b)=>b[1].pontos-a[1].pontos).map(([cid,v])=>`
+    <tr>
+      <td>${cid}</td><td>${v.ativ}</td><td>${v.prot}</td>
+      <td><span class="score-pill">${fmtNum(v.pontos)}</span></td>
+      <td>${fmtNum(v.pontos/v.ativ)}</td>
+    </tr>`).join('');
+  document.getElementById('tblCidade').innerHTML = rowsHtml || '<tr><td colspan="5" class="empty-note">Sem dados</td></tr>';
+}
+
+/* ---------- TABELA DETALHADA ---------- */
+let sortKey='data', sortDir=-1, tblPage=1, pageSize=12;
+function renderTable(rows){
+  const search = document.getElementById('tblSearch').value.toLowerCase().trim();
+  let filtered = rows.filter(r=>{
+    if(!search) return true;
+    return (r.protocolo||'').toLowerCase().includes(search) ||
+           r.colaborador.toLowerCase().includes(search) ||
+           r.cidade.toLowerCase().includes(search) ||
+           r.solicitacao.toLowerCase().includes(search);
+  });
+  filtered.sort((a,b)=>{
+    let x=a[sortKey], y=b[sortKey];
+    if(sortKey==='pontuacao'){ x=Number(x); y=Number(y); }
+    else { x=(x||'').toString(); y=(y||'').toString(); }
+    if(x<y) return -1*sortDir; if(x>y) return 1*sortDir; return 0;
+  });
+  const totalPages = Math.max(1, Math.ceil(filtered.length/pageSize));
+  if(tblPage>totalPages) tblPage=totalPages;
+  const start=(tblPage-1)*pageSize;
+  const pageRows = filtered.slice(start,start+pageSize);
+
+  document.getElementById('tblBody').innerHTML = pageRows.map(r=>`
+    <tr onclick='openModal(${JSON.stringify(r).replace(/'/g,"&#39;")})'>
+      <td>${fmtBR(r.data)}</td>
+      <td>${(r.datahora||'').split(' ')[1]||'-'}</td>
+      <td>${r.colaborador}</td>
+      <td>${r.protocolo? r.protocolo : '<span class="badge semprot">sem protocolo</span>'}</td>
+      <td>${r.solicitacao}</td>
+      <td>${r.cidade}</td>
+      <td><span class="badge ${r.tipo==='PRINCIPAL'?'principal':'auxiliar'}">${r.tipo}</span></td>
+      <td><span class="score-pill">${r.pontuacao}</span></td>
+    </tr>`).join('') || `<tr><td colspan="8" class="empty-note">Nenhum registro encontrado.</td></tr>`;
+
+  document.getElementById('tblCount').textContent = `${filtered.length} registro(s) encontrado(s)`;
+
+  const pager = document.getElementById('tblPager');
+  let btns='';
+  btns += `<button ${tblPage===1?'disabled':''} onclick="changePage(${tblPage-1})">‹</button>`;
+  for(let p=1;p<=totalPages;p++){
+    if(p===1||p===totalPages||Math.abs(p-tblPage)<=1){
+      btns += `<button class="${p===tblPage?'active':''}" onclick="changePage(${p})">${p}</button>`;
+    } else if(Math.abs(p-tblPage)===2){ btns += `<button disabled>…</button>`; }
+  }
+  btns += `<button ${tblPage===totalPages?'disabled':''} onclick="changePage(${tblPage+1})">›</button>`;
+  pager.innerHTML = btns;
+}
+function changePage(p){ tblPage=p; renderTable(applyFilters()); }
+document.querySelectorAll('th[data-sort]').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.dataset.sort;
+    if(sortKey===key) sortDir*=-1; else { sortKey=key; sortDir=1; }
+    renderTable(applyFilters());
+  });
+});
+document.getElementById('tblSearch').addEventListener('input', ()=>{ tblPage=1; renderTable(applyFilters()); });
+
+/* ---------- MODAL ---------- */
+function openModal(r){
+  document.getElementById('modalGrid').innerHTML = `
+    <div class="m-item"><label>Protocolo</label><div>${r.protocolo||'— sem protocolo —'}</div></div>
+    <div class="m-item"><label>Colaborador</label><div>${r.colaborador}</div></div>
+    <div class="m-item"><label>ID</label><div>${r.id||'-'}</div></div>
+    <div class="m-item"><label>Tipo</label><div>${r.tipo}</div></div>
+    <div class="m-item"><label>Solicitação</label><div>${r.solicitacao}</div></div>
+    <div class="m-item"><label>Cidade</label><div>${r.cidade}</div></div>
+    <div class="m-item"><label>Escala</label><div>${r.escala||'-'}</div></div>
+    <div class="m-item"><label>Data fechamento</label><div>${fmtBR(r.data)}</div></div>
+    <div class="m-item"><label>Data/Hora fechamento</label><div>${r.datahora||'-'}</div></div>
+    <div class="m-item"><label>Pontuação</label><div>${r.pontuacao}</div></div>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
+document.getElementById('modalBg').addEventListener('click', e=>{ if(e.target.id==='modalBg') closeModal(); });
+
+/* ---------- PAGE: COLABORADORES ---------- */
+function renderColaboradores(){
+  const colabs = uniqueSorted(RAW_DATA.map(r=>r.colaborador));
+  const html = colabs.map(nome=>{
+    const regs = RAW_DATA.filter(r=>r.colaborador===nome);
+    const total = regs.reduce((s,r)=>s+r.pontuacao,0);
+    const prot = regs.filter(r=>r.protocolo).length;
+    const dias = new Set(regs.map(r=>r.data));
+    const porDia = {};
+    regs.forEach(r=>{ porDia[r.data]=(porDia[r.data]||0)+r.pontuacao; });
+    const diarios = Object.values(porDia);
+    const maiorDia = diarios.length? Math.max(...diarios):0;
+    const menorDia = diarios.length? Math.min(...diarios):0;
+    const id = regs[0]?.id || '-';
+    const tipo = regs[0]?.tipo || '-';
+    const escala = regs[0]?.escala || '-';
+    return `<div class="card">
+      <h3>${nome} <small>${tipo}</small></h3>
+      <div class="chip-row">
+        <div class="info-chip">ID: <b>${id}</b></div>
+        <div class="info-chip">Escala: <b>${escala}</b></div>
+      </div>
+      <div class="chip-row" style="margin-top:10px;">
+        <div class="info-chip">Pontuação total: <b>${fmtNum(total)}</b></div>
+        <div class="info-chip">Atividades: <b>${regs.length}</b></div>
+        <div class="info-chip">Protocolos: <b>${prot}</b></div>
+        <div class="info-chip">Média/atividade: <b>${fmtNum(total/regs.length)}</b></div>
+        <div class="info-chip">Dias trabalhados: <b>${dias.size}</b></div>
+        <div class="info-chip">Maior pont. diária: <b>${fmtNum(maiorDia)}</b></div>
+        <div class="info-chip">Menor pont. diária: <b>${fmtNum(menorDia)}</b></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('colabCards').innerHTML = html;
+}
+
+/* ---------- PAGE: RANKING COMPLETO ---------- */
+function renderFullRanking(){
+  const periodo = document.getElementById('rkPeriodo').value;
+  const [ini,fim] = periodoRange(periodo, document.getElementById('rkIni').value, document.getElementById('rkFim').value);
+  const rows = RAW_DATA.filter(r=> (!ini||r.data>=ini) && (!fim||r.data<=fim) );
+  const data = computeRanking(rows);
+
+  const renderList = (arr, mode, elId)=>{
+    const sorted = [...arr].sort((a,b)=> mode==='total'?b.total-a.total:b.media-a.media);
+    const max = sorted.length? (mode==='total'?sorted[0].total:sorted[0].media):1;
+    document.getElementById(elId).innerHTML = sorted.length ? sorted.map((c,i)=>{
+      const val = mode==='total'?c.total:c.media;
+      const pct = max? val/max*100:0;
+      return `<div class="rank-row">
+        <div class="rank-pos ${medalClass(i)}">${medalIcon(i)}</div>
+        <div class="rank-name"><b>${c.nome}</b><span>Acum: ${fmtNum(c.total)} · Média: ${fmtNum(c.media)} · ${c.dias} dias · ${c.ativ} ativ.</span></div>
+        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%"></div></div>
+        <div class="rank-val">${fmtNum(val)}</div>
+      </div>`;
+    }).join('') : '<div class="empty-note">Sem dados para o período.</div>';
+  };
+  renderList(data,'total','rankFullTotal');
+  renderList(data,'media','rankFullMedia');
+}
+
+/* ---------- PAGE: PROTOCOLOS ---------- */
+function renderProtocolos(){
+  const comProt = RAW_DATA.filter(r=>r.protocolo);
+  const semProt = RAW_DATA.filter(r=>!r.protocolo);
+  document.getElementById('pComProt').textContent = comProt.length;
+  document.getElementById('pSemProt').textContent = semProt.length;
+  document.getElementById('pTotal').textContent = RAW_DATA.length;
+
+  const sorted = [...RAW_DATA].sort((a,b)=> b.data.localeCompare(a.data));
+  document.getElementById('protBody').innerHTML = sorted.map(r=>`
+    <tr onclick='openModal(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="cursor:pointer">
+      <td>${fmtBR(r.data)}</td>
+      <td>${r.colaborador}</td>
+      <td>${r.protocolo||'-'}</td>
+      <td>${r.protocolo?`<span class="badge comprot">com protocolo</span>`:`<span class="badge semprot">sem protocolo</span>`}</td>
+      <td>${r.solicitacao}</td>
+      <td><span class="score-pill">${r.pontuacao}</span></td>
+    </tr>`).join('');
+}
+
+/* ---------- PAGE: CALENDÁRIO ---------- */
+function renderCalendario(){
+  const mes = document.getElementById('calMes').value;
+  const colab = document.getElementById('calColab').value;
+  if(!mes) return;
+  document.getElementById('calTitle').textContent = `Calendário de produtividade — ${mesLabel(mes)}${colab? ' · '+colab:''}`;
+
+  const rows = RAW_DATA.filter(r=> r.data.startsWith(mes) && (!colab || r.colaborador===colab));
+  const byDay = {};
+  rows.forEach(r=>{ byDay[r.data]=(byDay[r.data]||0)+r.pontuacao; });
+
+  const dowNames = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  document.getElementById('calDow').innerHTML = dowNames.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+
+  const [y,m] = mes.split('-').map(Number);
+  const firstDow = new Date(y,m-1,1).getDay();
+  const daysInMonth = new Date(y,m,0).getDate();
+
+  let html='';
+  for(let i=0;i<firstDow;i++) html += `<div class="cal-day empty"></div>`;
+  for(let d=1; d<=daysInMonth; d++){
+    const iso = `${mes}-${String(d).padStart(2,'0')}`;
+    const score = byDay[iso];
+    if(score!==undefined){
+      const lvl = nivelDesempenho(score);
+      html += `<div class="cal-day has lvl-${lvl}" onclick="calDayClick('${iso}','${(colab||'').replace(/'/g,"\\'")}')">
+        <div class="d-num">${d}</div><div class="d-score">${fmtNum(score)}</div>
+      </div>`;
+    } else {
+      html += `<div class="cal-day"><div class="d-num">${d}</div></div>`;
+    }
+  }
+  document.getElementById('calGrid').innerHTML = html;
+}
+function calDayClick(iso, colab){
+  const rows = RAW_DATA.filter(r=>r.data===iso && (!colab || r.colaborador===colab));
+  if(rows.length===1){ openModal(rows[0]); return; }
+  alert(`${fmtBR(iso)}${colab? ' · '+colab:''}\n${rows.length} atividade(s) · ${fmtNum(rows.reduce((s,r)=>s+r.pontuacao,0))} pontos`);
+}
+
+/* ---------- UPLOAD / IMPORTAR ---------- */
+function processWorkbook(wb){
+  const sheetName = wb.SheetNames.find(n=>n.toLowerCase().includes('anal')) || wb.SheetNames[0];
+  const ws = wb.Sheets[sheetName];
+  const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:null});
+
+  // detectar linha de cabeçalho
+  const requiredHeaders = ['protocolo','nome colaborador','pontuação'];
+  let headerRowIdx = -1;
+  for(let i=0;i<aoa.length;i++){
+    const rowLower = (aoa[i]||[]).map(c=> (c||'').toString().toLowerCase().trim());
+    if(requiredHeaders.every(h=>rowLower.some(c=>c.includes(h.replace('ç','c').replace('ã','a')) || c.includes(h)))){
+      headerRowIdx = i; break;
+    }
+  }
+  if(headerRowIdx===-1){
+    return {error:"Não foi possível identificar a linha de cabeçalho. Verifique se as colunas 'Protocolo', 'Nome Colaborador' e 'Pontuação' existem no arquivo."};
+  }
+  const headers = aoa[headerRowIdx].map(h=>(h||'').toString().trim());
+  const idx = {
+    protocolo: headers.findIndex(h=>h.toLowerCase()==='protocolo'),
+    colaborador: headers.findIndex(h=>h.toLowerCase().includes('nome colaborador')),
+    id: headers.findIndex(h=>h.toLowerCase().includes('id colaborador')),
+    tipo: headers.findIndex(h=>h.toLowerCase().includes('tipo colaborador')),
+    solicitacao: headers.findIndex(h=>h.toLowerCase().includes('solicita')),
+    cidade: headers.findIndex(h=>h.toLowerCase().includes('cidade')),
+    escala: headers.findIndex(h=>h.toLowerCase().includes('escala')),
+    data: headers.findIndex(h=>h.toLowerCase()==='data fechamento'),
+    datahora: headers.findIndex(h=>h.toLowerCase().includes('data|hora') || h.toLowerCase().includes('data/hora')),
+    pontuacao: headers.findIndex(h=>h.toLowerCase().includes('pontua'))
+  };
+  if(idx.colaborador===-1 || idx.data===-1 || idx.pontuacao===-1){
+    return {error:"Não foi possível processar o arquivo. Colunas obrigatórias (Nome Colaborador, Data Fechamento ou Pontuação) não foram encontradas."};
+  }
+
+  const norm = s => s==null? '' : s.toString().replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();
+  const parseDate = v => {
+    if(!v) return null;
+    if(typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0,10);
+    const d = new Date(v);
+    if(!isNaN(d)) return d.toISOString().slice(0,10);
+    // tenta dd/mm/yyyy
+    const m = v.toString().match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+    return null;
+  };
+
+  const records = [];
+  for(let i=headerRowIdx+1;i<aoa.length;i++){
+    const row = aoa[i];
+    if(!row) continue;
+    const nome = norm(row[idx.colaborador]);
+    const pontRaw = row[idx.pontuacao];
+    if(!nome || pontRaw===null || pontRaw==='') continue;
+    const pont = parseFloat(pontRaw.toString().replace(',','.'));
+    if(isNaN(pont)) continue;
+    const dataStr = parseDate(row[idx.data]);
+    if(!dataStr) continue;
+    records.push({
+      protocolo: idx.protocolo>=0 ? (norm(row[idx.protocolo])||null) : null,
+      colaborador: nome,
+      id: idx.id>=0? norm(row[idx.id]) : '',
+      tipo: idx.tipo>=0? norm(row[idx.tipo]) : '',
+      solicitacao: idx.solicitacao>=0? norm(row[idx.solicitacao]) : '',
+      cidade: idx.cidade>=0? norm(row[idx.cidade]) : '',
+      escala: idx.escala>=0? norm(row[idx.escala]) : '',
+      data: dataStr,
+      datahora: idx.datahora>=0? norm(row[idx.datahora]) : '',
+      pontuacao: pont
+    });
+  }
+  if(!records.length) return {error:"Nenhum registro válido encontrado no arquivo."};
+  return {records};
+}
+
+function handleFile(file){
+  const status = document.getElementById('uploadStatus');
+  status.className='upload-status'; status.style.display='none';
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const res = processWorkbook(wb);
+      if(res.error){
+        status.className='upload-status err'; status.textContent = res.error; return;
+      }
+      RAW_DATA = res.records;
+      const comProt = RAW_DATA.filter(r=>r.protocolo).length;
+      const datas = uniqueSorted(RAW_DATA.map(r=>r.data)).sort();
+      status.className='upload-status ok';
+      status.textContent = `Arquivo processado com sucesso: ${RAW_DATA.length} registros · ${uniqueSorted(RAW_DATA.map(r=>r.colaborador)).length} colaboradores · ${fmtBR(datas[0])} a ${fmtBR(datas[datas.length-1])}.`;
+      document.getElementById('curArquivo').textContent = file.name;
+      initAll();
+      goToPage('dashboard');
+    }catch(err){
+      status.className='upload-status err';
+      status.textContent = "Não foi possível processar o arquivo. Verifique se é um Excel válido (.xlsx ou .xls).";
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+document.getElementById('fileInput').addEventListener('change', e=>{
+  if(e.target.files[0]) handleFile(e.target.files[0]);
+});
+const dropZone = document.getElementById('dropZone');
+['dragover','dragenter'].forEach(evt=>dropZone.addEventListener(evt,e=>{e.preventDefault(); dropZone.style.borderColor='var(--azul-500)';}));
+['dragleave','drop'].forEach(evt=>dropZone.addEventListener(evt,e=>{e.preventDefault(); dropZone.style.borderColor='var(--cinza-200)';}));
+dropZone.addEventListener('drop', e=>{
+  const f = e.dataTransfer.files[0];
+  if(f) handleFile(f);
+});
+
+/* ---------- EXPORT CSV ---------- */
+function exportCSV(){
+  const rows = applyFilters();
+  const headers = ['Data','Hora','Colaborador','ID','Tipo','Protocolo','Solicitacao','Cidade','Escala','Pontuacao'];
+  const lines = [headers.join(';')];
+  rows.forEach(r=>{
+    lines.push([fmtBR(r.data), (r.datahora||'').split(' ')[1]||'', r.colaborador, r.id||'', r.tipo, r.protocolo||'', r.solicitacao, r.cidade, r.escala||'', r.pontuacao].join(';'));
+  });
+  const blob = new Blob(['\ufeff'+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='produtividade_redes.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- CURRENT FILE STATS ---------- */
+function renderCurrentStats(){
+  const comProt = RAW_DATA.filter(r=>r.protocolo).length;
+  const datas = uniqueSorted(RAW_DATA.map(r=>r.data)).sort();
+  document.getElementById('curRegistros').textContent = RAW_DATA.length;
+  document.getElementById('curColab').textContent = uniqueSorted(RAW_DATA.map(r=>r.colaborador)).length;
+  document.getElementById('curComProt').textContent = comProt;
+  document.getElementById('curSemProt').textContent = RAW_DATA.length-comProt;
+  document.getElementById('curPeriodo').textContent = datas.length? `${fmtBR(datas[0])} a ${fmtBR(datas[datas.length-1])}`:'-';
+}
+
+/* ---------- NAVEGAÇÃO ---------- */
+const pages = ['dashboard','colaboradores','ranking','protocolos','calendario','importar'];
+function goToPage(name){
+  pages.forEach(p=>{
+    document.getElementById('page'+p.charAt(0).toUpperCase()+p.slice(1)).style.display = (p===name)?'block':'none';
+  });
+  document.querySelectorAll('#navList a').forEach(a=>a.classList.toggle('active', a.dataset.page===name));
+  if(name==='colaboradores') renderColaboradores();
+  if(name==='ranking') renderFullRanking();
+  if(name==='protocolos') renderProtocolos();
+  if(name==='calendario') renderCalendario();
+  if(name==='importar') renderCurrentStats();
+}
+document.querySelectorAll('#navList a').forEach(a=>{
+  a.addEventListener('click', ()=>goToPage(a.dataset.page));
+});
+
+/* ---------- FILTER EVENTS ---------- */
+['fColab','fPeriodo','fDataIni','fDataFim','fCidade','fTipo','fSolic'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', ()=>{
+    if(id==='fPeriodo'){
+      const custom = document.getElementById('fPeriodo').value==='custom';
+      document.getElementById('fDataIniWrap').style.display = custom?'flex':'none';
+      document.getElementById('fDataFimWrap').style.display = custom?'flex':'none';
+    }
+    tblPage=1;
+    refreshDashboard();
+  });
+});
+function resetFilters(){
+  document.getElementById('fColab').value='';
+  document.getElementById('fPeriodo').value='todos';
+  document.getElementById('fCidade').value='';
+  document.getElementById('fTipo').value='';
+  document.getElementById('fSolic').value='';
+  document.getElementById('fDataIniWrap').style.display='none';
+  document.getElementById('fDataFimWrap').style.display='none';
+  tblPage=1;
+  refreshDashboard();
+}
+document.getElementById('dqColab').addEventListener('change', renderDailyQuery);
+document.getElementById('dqData').addEventListener('change', renderDailyQuery);
+document.getElementById('rkPeriodo').addEventListener('change', ()=>{
+  const custom = document.getElementById('rkPeriodo').value==='custom';
+  document.getElementById('rkIniWrap').style.display = custom?'flex':'none';
+  document.getElementById('rkFimWrap').style.display = custom?'flex':'none';
+  renderFullRanking();
+});
+document.getElementById('rkIni').addEventListener('change', renderFullRanking);
+document.getElementById('rkFim').addEventListener('change', renderFullRanking);
+document.getElementById('calColab').addEventListener('change', renderCalendario);
+document.getElementById('calMes').addEventListener('change', renderCalendario);
+
+function refreshDashboard(){
+  const rows = applyFilters();
+  renderKPIs(rows);
+  renderEvolucao(rows);
+  renderRankMini(rows);
+  renderSolic(rows);
+  renderCidade(rows);
+  renderTable(rows);
+}
+
+/* ---------- INIT ---------- */
+function initAll(){
+  fillFilterOptions();
+  // default: consulta diária com o primeiro colaborador e última data com dados
+  const datas = uniqueSorted(RAW_DATA.map(r=>r.data)).sort();
+  if(datas.length) document.getElementById('dqData').value = datas[datas.length-1];
+  renderDailyQuery();
+  refreshDashboard();
+  renderCurrentStats();
+}
+initAll();
+</script>
+</body>
+</html>
