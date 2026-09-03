@@ -271,6 +271,9 @@ tbody tr:hover{background:var(--azul-100);}
       <li><a data-page="ranking">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21V10M14 21V3M20 21v-7M4 21v-4"/></svg>
         Ranking</a></li>
+      <li><a data-page="meta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+        Meta Semanal</a></li>
       <li><a data-page="protocolos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5"/></svg>
         Protocolos</a></li>
@@ -324,6 +327,10 @@ tbody tr:hover{background:var(--azul-100);}
         <div class="f-group" id="fDataFimWrap" style="display:none">
           <label>Até</label>
           <input type="date" id="fDataFim">
+        </div>
+        <div class="f-group">
+          <label>Estado</label>
+          <select id="fEstado"><option value="">Todos</option></select>
         </div>
         <div class="f-group">
           <label>Cidade</label>
@@ -454,6 +461,10 @@ tbody tr:hover{background:var(--azul-100);}
         </div>
       </div>
 
+      <!-- POR ESTADO -->
+      <div class="section-title"><span class="bar"></span>Técnicos por estado</div>
+      <div class="grid-3" id="estadoCards"></div>
+
       <!-- DETALHAMENTO -->
       <div class="section-title"><span class="bar"></span>Detalhamento dos registros</div>
       <div class="card">
@@ -563,6 +574,81 @@ tbody tr:hover{background:var(--azul-100);}
       </div>
     </div>
 
+    <!-- PAGE: META SEMANAL -->
+    <div class="content" id="pageMeta" style="display:none;">
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="kpi">
+          <div class="k-label">Meta semanal padrão</div>
+          <div class="k-value">40 pts</div>
+          <div class="k-sub">seg a sex · válidos para a meta</div>
+        </div>
+        <div class="kpi pink">
+          <div class="k-label">Semana</div>
+          <div class="k-value">Dom → Sáb</div>
+          <div class="k-sub">sáb/dom contam como pontuação extra</div>
+        </div>
+        <div class="kpi">
+          <div class="k-label">Semanas atingiram a meta</div>
+          <div class="k-value" id="metaKpiAtingiu">-</div>
+          <div class="k-sub">de <span id="metaKpiTotal">-</span> semana(s) · colaborador(es)</div>
+        </div>
+        <div class="kpi">
+          <div class="k-label">Folgas registradas</div>
+          <div class="k-value" id="metaKpiFolgas">-</div>
+          <div class="k-sub">-8 pontos na meta, por folga</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="card">
+          <h3>Registrar folga manual</h3>
+          <div class="f-group" style="margin-bottom:12px;">
+            <label>Técnico</label>
+            <select id="folgaColab"></select>
+          </div>
+          <div class="f-group" style="margin-bottom:14px;">
+            <label>Data da folga</label>
+            <input type="date" id="folgaData">
+          </div>
+          <button class="btn btn-pink btn-sm" onclick="addFolga()">− Registrar folga (−8 pts na meta da semana)</button>
+          <div style="margin-top:16px;font-size:12px;color:var(--cinza-600);line-height:1.6;">
+            Cada folga registrada reduz <b>8 pontos</b> da meta de 40 pts daquele técnico, apenas na semana (domingo a sábado) em que a folga cair. Pontuações de sábado e domingo nunca entram na meta — são sempre extras.
+          </div>
+          <div style="margin-top:16px;">
+            <div class="section-title" style="margin:0 0 8px;font-size:12.5px;"><span class="bar"></span>Folgas registradas</div>
+            <div id="folgaList"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Filtrar visão semanal</h3>
+          <div class="f-group" style="margin-bottom:12px;">
+            <label>Técnico</label>
+            <select id="mgColab"><option value="">Todos</option></select>
+          </div>
+          <div class="f-group">
+            <label>Semana</label>
+            <select id="mgSemana"><option value="">Todas as semanas</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title"><span class="bar"></span>Acompanhamento da meta (seg–sex) e pontos extra (sáb–dom)</div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Semana</th><th>Técnico</th><th>Pontos seg–sex</th><th>Meta efetiva</th>
+                <th>% da meta</th><th>Extra (sáb/dom)</th><th>Total geral</th><th>Folgas</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="metaBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- PAGE: IMPORTAR -->
     <div class="content" id="pageImportar" style="display:none;">
       <div class="grid-2">
@@ -640,18 +726,29 @@ function populateSelect(sel, values, placeholder){
   sel.innerHTML = `<option value="">${placeholder}</option>` + values.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`).join('');
 }
 
+/* ---------- ESTADO (extraído da Cidade "NOME | UF") ---------- */
+function getEstado(cidade){
+  if(!cidade) return 'N/D';
+  const parts = cidade.split('|');
+  return parts.length>1 ? parts[1].trim() : 'N/D';
+}
+
 function fillFilterOptions(){
   const colabs = uniqueSorted(RAW_DATA.map(r=>r.colaborador));
   const cidades = uniqueSorted(RAW_DATA.map(r=>r.cidade));
+  const estados = uniqueSorted(RAW_DATA.map(r=>getEstado(r.cidade)));
   const tipos = uniqueSorted(RAW_DATA.map(r=>r.tipo));
   const solics = uniqueSorted(RAW_DATA.map(r=>r.solicitacao));
 
   populateSelect(document.getElementById('fColab'), colabs, 'Todos');
+  populateSelect(document.getElementById('fEstado'), estados, 'Todos');
   populateSelect(document.getElementById('fCidade'), cidades, 'Todas');
   populateSelect(document.getElementById('fTipo'), tipos, 'Todos');
   populateSelect(document.getElementById('fSolic'), solics, 'Todas');
   populateSelect(document.getElementById('dqColab'), colabs, 'Escolha um colaborador');
   populateSelect(document.getElementById('calColab'), colabs, 'Todos');
+  populateSelect(document.getElementById('folgaColab'), colabs, 'Selecione o técnico');
+  populateSelect(document.getElementById('mgColab'), colabs, 'Todos');
 
   const datas = uniqueSorted(RAW_DATA.map(r=>r.data)).sort();
   if(datas.length){
@@ -663,6 +760,18 @@ function fillFilterOptions(){
   const calMes = document.getElementById('calMes');
   calMes.innerHTML = meses.map(m=>`<option value="${m}">${mesLabel(m)}</option>`).join('');
   if(meses.length) calMes.value = meses[meses.length-1];
+
+  fillSemanaOptions();
+}
+
+/* Filtra as opções de Cidade de acordo com o Estado selecionado (cascata) */
+function updateCidadeOptionsByEstado(){
+  const estado = document.getElementById('fEstado').value;
+  const cidadeSel = document.getElementById('fCidade');
+  const atual = cidadeSel.value;
+  const cidades = uniqueSorted(RAW_DATA.filter(r=> !estado || getEstado(r.cidade)===estado).map(r=>r.cidade));
+  populateSelect(cidadeSel, cidades, 'Todas');
+  if(cidades.includes(atual)) cidadeSel.value = atual;
 }
 
 const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -675,6 +784,7 @@ function getFilters(){
     periodo: document.getElementById('fPeriodo').value,
     dataIni: document.getElementById('fDataIni').value,
     dataFim: document.getElementById('fDataFim').value,
+    estado: document.getElementById('fEstado').value,
     cidade: document.getElementById('fCidade').value,
     tipo: document.getElementById('fTipo').value,
     solic: document.getElementById('fSolic').value,
@@ -710,6 +820,7 @@ function applyFilters(){
   const [ini,fim] = periodoRange(f.periodo, f.dataIni, f.dataFim);
   return RAW_DATA.filter(r=>{
     if(f.colab && r.colaborador!==f.colab) return false;
+    if(f.estado && getEstado(r.cidade)!==f.estado) return false;
     if(f.cidade && r.cidade!==f.cidade) return false;
     if(f.tipo && r.tipo!==f.tipo) return false;
     if(f.solic && r.solicitacao!==f.solic) return false;
@@ -717,6 +828,42 @@ function applyFilters(){
     if(fim && r.data > fim) return false;
     return true;
   });
+}
+
+/* ---------- CARDS POR ESTADO ---------- */
+function renderEstados(rows){
+  const porEstado = {};
+  rows.forEach(r=>{
+    const uf = getEstado(r.cidade);
+    if(!porEstado[uf]) porEstado[uf] = {};
+    if(!porEstado[uf][r.colaborador]) porEstado[uf][r.colaborador] = {ativ:0,prot:0,pontos:0};
+    porEstado[uf][r.colaborador].ativ += 1;
+    porEstado[uf][r.colaborador].pontos += r.pontuacao;
+    if(r.protocolo) porEstado[uf][r.colaborador].prot += 1;
+  });
+  const ufs = Object.keys(porEstado).sort((a,b)=>{
+    const totalA = Object.values(porEstado[a]).reduce((s,v)=>s+v.pontos,0);
+    const totalB = Object.values(porEstado[b]).reduce((s,v)=>s+v.pontos,0);
+    return totalB-totalA;
+  });
+  const el = document.getElementById('estadoCards');
+  if(!ufs.length){ el.innerHTML = '<div class="card"><div class="empty-note">Sem dados para o filtro selecionado.</div></div>'; return; }
+  el.innerHTML = ufs.map(uf=>{
+    const tecnicos = Object.entries(porEstado[uf]).sort((a,b)=>b[1].pontos-a[1].pontos);
+    const totalPontos = tecnicos.reduce((s,[,v])=>s+v.pontos,0);
+    const rowsHtml = tecnicos.map(([nome,v])=>`
+      <div class="rank-row" style="padding:8px 4px;">
+        <div class="rank-name"><b style="font-size:12.5px;">${nome}</b><span>${v.ativ} ativ. · ${v.prot} protoc.</span></div>
+        <div class="rank-val" style="font-size:13px;width:auto;">${fmtNum(v.pontos)}</div>
+      </div>`).join('');
+    return `<div class="card">
+      <h3>📍 ${uf} <small>${fmtNum(totalPontos)} pts</small></h3>
+      <div class="chip-row" style="margin-bottom:8px;">
+        <div class="info-chip">${tecnicos.length} técnico(s)</div>
+      </div>
+      ${rowsHtml}
+    </div>`;
+  }).join('');
 }
 
 /* ---------- KPIs ---------- */
@@ -1135,6 +1282,162 @@ function calDayClick(iso, colab){
   alert(`${fmtBR(iso)}${colab? ' · '+colab:''}\n${rows.length} atividade(s) · ${fmtNum(rows.reduce((s,r)=>s+r.pontuacao,0))} pontos`);
 }
 
+/* ============================================================
+   META SEMANAL — 40 pontos por semana (domingo a sábado)
+   Seg-Sex = pontos válidos para a meta
+   Sáb/Dom = pontuação extra (não conta para a meta)
+   Folga manual = -8 pontos na meta daquela semana
+   ============================================================ */
+const META_SEMANAL_PADRAO = 40;
+const PONTOS_POR_FOLGA = 8;
+let FOLGAS = []; // {id, colaborador, data} — mantido em memória durante a sessão
+
+function parseLocalDate(iso){
+  const [y,m,d] = iso.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function isoFromLocalDate(d){
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+/* Retorna a data (ISO) do domingo que inicia a semana daquela data */
+function getWeekStart(iso){
+  const d = parseLocalDate(iso);
+  const dow = d.getDay(); // 0=domingo
+  d.setDate(d.getDate()-dow);
+  return isoFromLocalDate(d);
+}
+function getWeekLabel(weekStartIso){
+  const ini = parseLocalDate(weekStartIso);
+  const fim = new Date(ini); fim.setDate(fim.getDate()+6);
+  return `${String(ini.getDate()).padStart(2,'0')}/${String(ini.getMonth()+1).padStart(2,'0')} – ${String(fim.getDate()).padStart(2,'0')}/${String(fim.getMonth()+1).padStart(2,'0')}`;
+}
+function isFimDeSemana(iso){
+  const dow = parseLocalDate(iso).getDay();
+  return dow===0 || dow===6; // domingo ou sábado
+}
+
+function fillSemanaOptions(){
+  const semanas = uniqueSorted(RAW_DATA.map(r=>getWeekStart(r.data))).sort();
+  const sel = document.getElementById('mgSemana');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Todas as semanas</option>' +
+    semanas.map(s=>`<option value="${s}">Semana de ${getWeekLabel(s)}</option>`).join('');
+}
+
+function addFolga(){
+  const colab = document.getElementById('folgaColab').value;
+  const data = document.getElementById('folgaData').value;
+  if(!colab || !data){
+    alert('Selecione o técnico e a data da folga.');
+    return;
+  }
+  FOLGAS.push({ id: Date.now()+Math.random(), colaborador: colab, data });
+  document.getElementById('folgaData').value = '';
+  renderMeta();
+}
+function removeFolga(id){
+  FOLGAS = FOLGAS.filter(f=>f.id!==id);
+  renderMeta();
+}
+function renderFolgaList(){
+  const el = document.getElementById('folgaList');
+  if(!el) return;
+  if(!FOLGAS.length){ el.innerHTML = '<div class="empty-note" style="padding:14px 0;">Nenhuma folga registrada ainda.</div>'; return; }
+  const ordenadas = [...FOLGAS].sort((a,b)=> b.data.localeCompare(a.data));
+  el.innerHTML = ordenadas.map(f=>`
+    <div class="rank-row" style="padding:8px 4px;">
+      <div class="rank-name"><b style="font-size:12.5px;">${f.colaborador}</b><span>Folga em ${fmtBR(f.data)} · semana ${getWeekLabel(getWeekStart(f.data))}</span></div>
+      <button class="btn btn-outline btn-sm" style="color:var(--critico);border-color:#fbd2d8;" onclick="removeFolga(${f.id})">Remover</button>
+    </div>`).join('');
+}
+
+/* Calcula, para cada (semana, colaborador) presente nos dados: pontos válidos, extra, meta efetiva, status */
+function computeMetaSemanal(){
+  const colabs = uniqueSorted(RAW_DATA.map(r=>r.colaborador));
+  const semanas = uniqueSorted(RAW_DATA.map(r=>getWeekStart(r.data))).sort();
+
+  const grid = {}; // grid[semana][colab] = {validos, extra, folgas}
+  semanas.forEach(s=>{
+    grid[s] = {};
+    colabs.forEach(c=> grid[s][c] = {validos:0, extra:0} );
+  });
+
+  RAW_DATA.forEach(r=>{
+    const s = getWeekStart(r.data);
+    if(!grid[s] || !grid[s][r.colaborador]) return;
+    if(isFimDeSemana(r.data)) grid[s][r.colaborador].extra += r.pontuacao;
+    else grid[s][r.colaborador].validos += r.pontuacao;
+  });
+
+  const folgaCount = {}; // folgaCount[semana][colab] = n
+  FOLGAS.forEach(f=>{
+    const s = getWeekStart(f.data);
+    folgaCount[s] = folgaCount[s] || {};
+    folgaCount[s][f.colaborador] = (folgaCount[s][f.colaborador]||0) + 1;
+  });
+
+  const linhas = [];
+  semanas.forEach(s=>{
+    colabs.forEach(c=>{
+      const v = grid[s][c];
+      if(v.validos===0 && v.extra===0 && !(folgaCount[s] && folgaCount[s][c])) return; // sem qualquer registro/folga nessa semana -> não exibe
+      const nFolgas = (folgaCount[s] && folgaCount[s][c]) || 0;
+      const metaEfetiva = Math.max(0, META_SEMANAL_PADRAO - PONTOS_POR_FOLGA*nFolgas);
+      const pct = metaEfetiva>0 ? (v.validos/metaEfetiva*100) : (v.validos>0?100:0);
+      linhas.push({
+        semana:s, colaborador:c, validos:v.validos, extra:v.extra,
+        metaEfetiva, pct, folgas:nFolgas, total: v.validos+v.extra
+      });
+    });
+  });
+  return linhas.sort((a,b)=> b.semana.localeCompare(a.semana) || a.colaborador.localeCompare(b.colaborador,'pt'));
+}
+
+function statusMeta(pct){
+  if(pct>=100) return {label:'Meta atingida', cls:'comprot'};
+  if(pct>=70) return {label:'Próximo da meta', cls:'auxiliar'};
+  return {label:'Abaixo da meta', cls:'semprot'};
+}
+
+function renderMeta(){
+  renderFolgaList();
+  const filtroColab = document.getElementById('mgColab').value;
+  const filtroSemana = document.getElementById('mgSemana').value;
+  let linhas = computeMetaSemanal();
+  if(filtroColab) linhas = linhas.filter(l=>l.colaborador===filtroColab);
+  if(filtroSemana) linhas = linhas.filter(l=>l.semana===filtroSemana);
+
+  document.getElementById('metaBody').innerHTML = linhas.length ? linhas.map(l=>{
+    const st = statusMeta(l.pct);
+    return `<tr>
+      <td>${getWeekLabel(l.semana)}</td>
+      <td>${l.colaborador}</td>
+      <td><span class="score-pill">${fmtNum(l.validos)}</span></td>
+      <td>${fmtNum(l.metaEfetiva)}</td>
+      <td>
+        <div class="rank-bar-wrap" style="max-width:80px;display:inline-block;vertical-align:middle;margin-right:8px;">
+          <div class="rank-bar" style="width:${Math.min(100,l.pct)}%"></div>
+        </div>
+        ${fmtNum(l.pct)}%
+      </td>
+      <td>${fmtNum(l.extra)}</td>
+      <td><b>${fmtNum(l.total)}</b></td>
+      <td>${l.folgas>0? `${l.folgas} (−${l.folgas*PONTOS_POR_FOLGA} pts)` : '—'}</td>
+      <td><span class="badge ${st.cls}">${st.label}</span></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="9" class="empty-note">Nenhum registro encontrado para o filtro selecionado.</td></tr>`;
+
+  const todasLinhas = computeMetaSemanal();
+  const atingiram = todasLinhas.filter(l=>l.pct>=100).length;
+  document.getElementById('metaKpiAtingiu').textContent = atingiram;
+  document.getElementById('metaKpiTotal').textContent = todasLinhas.length;
+  document.getElementById('metaKpiFolgas').textContent = FOLGAS.length;
+}
+
+document.getElementById('mgColab')?.addEventListener('change', renderMeta);
+document.getElementById('mgSemana')?.addEventListener('change', renderMeta);
+
 /* ---------- UPLOAD / IMPORTAR ---------- */
 function processWorkbook(wb){
   const sheetName = wb.SheetNames.find(n=>n.toLowerCase().includes('anal')) || wb.SheetNames[0];
@@ -1274,7 +1577,7 @@ function renderCurrentStats(){
 }
 
 /* ---------- NAVEGAÇÃO ---------- */
-const pages = ['dashboard','colaboradores','ranking','protocolos','calendario','importar'];
+const pages = ['dashboard','colaboradores','ranking','meta','protocolos','calendario','importar'];
 function goToPage(name){
   pages.forEach(p=>{
     document.getElementById('page'+p.charAt(0).toUpperCase()+p.slice(1)).style.display = (p===name)?'block':'none';
@@ -1282,6 +1585,7 @@ function goToPage(name){
   document.querySelectorAll('#navList a').forEach(a=>a.classList.toggle('active', a.dataset.page===name));
   if(name==='colaboradores') renderColaboradores();
   if(name==='ranking') renderFullRanking();
+  if(name==='meta') renderMeta();
   if(name==='protocolos') renderProtocolos();
   if(name==='calendario') renderCalendario();
   if(name==='importar') renderCurrentStats();
@@ -1291,12 +1595,15 @@ document.querySelectorAll('#navList a').forEach(a=>{
 });
 
 /* ---------- FILTER EVENTS ---------- */
-['fColab','fPeriodo','fDataIni','fDataFim','fCidade','fTipo','fSolic'].forEach(id=>{
+['fColab','fPeriodo','fDataIni','fDataFim','fEstado','fCidade','fTipo','fSolic'].forEach(id=>{
   document.getElementById(id).addEventListener('change', ()=>{
     if(id==='fPeriodo'){
       const custom = document.getElementById('fPeriodo').value==='custom';
       document.getElementById('fDataIniWrap').style.display = custom?'flex':'none';
       document.getElementById('fDataFimWrap').style.display = custom?'flex':'none';
+    }
+    if(id==='fEstado'){
+      updateCidadeOptionsByEstado();
     }
     tblPage=1;
     refreshDashboard();
@@ -1305,11 +1612,13 @@ document.querySelectorAll('#navList a').forEach(a=>{
 function resetFilters(){
   document.getElementById('fColab').value='';
   document.getElementById('fPeriodo').value='todos';
+  document.getElementById('fEstado').value='';
   document.getElementById('fCidade').value='';
   document.getElementById('fTipo').value='';
   document.getElementById('fSolic').value='';
   document.getElementById('fDataIniWrap').style.display='none';
   document.getElementById('fDataFimWrap').style.display='none';
+  updateCidadeOptionsByEstado();
   tblPage=1;
   refreshDashboard();
 }
@@ -1333,6 +1642,7 @@ function refreshDashboard(){
   renderRankMini(rows);
   renderSolic(rows);
   renderCidade(rows);
+  renderEstados(rows);
   renderTable(rows);
 }
 
