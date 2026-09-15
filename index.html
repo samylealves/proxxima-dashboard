@@ -240,26 +240,32 @@ tbody tr:hover{background:var(--azul-100);}
 .et-panel{display:none;}
 .et-panel.active{display:block;}
 
-.et-matrix-wrap{overflow:auto;max-height:64vh;border:1px solid var(--cinza-200);border-radius:12px;position:relative;}
-.et-matrix{border-collapse:separate;border-spacing:0;font-size:12px;min-width:100%;}
-.et-matrix th, .et-matrix td{border-right:1px solid var(--cinza-100);border-bottom:1px solid var(--cinza-100);padding:0;text-align:center;white-space:nowrap;}
+.et-matrix-wrap{overflow:auto;max-height:64vh;border:1px solid var(--cinza-200);border-radius:12px;position:relative;background:var(--cinza-50);padding:4px;}
+.et-matrix{border-collapse:separate;border-spacing:4px;font-size:12px;min-width:100%;}
+.et-matrix th, .et-matrix td{border:none;padding:0;text-align:center;}
 .et-matrix thead th{
   position:sticky;top:0;z-index:3;background:var(--azul-900);color:#fff;font-size:10.5px;font-weight:700;
-  padding:8px 4px;min-width:34px;
+  padding:9px 6px;min-width:52px;border-radius:8px;line-height:1.5;
 }
-.et-matrix thead th.et-th-nome{left:0;z-index:5;min-width:200px;text-align:left;padding-left:14px;background:var(--azul-900);}
+.et-matrix thead th.et-th-nome{left:0;z-index:5;min-width:210px;text-align:left;padding-left:14px;background:var(--azul-900);}
 .et-matrix thead th.et-weekend{background:#1a2f5c;}
 .et-matrix thead th.et-feriado{background:var(--rosa-600);}
 .et-matrix tbody td.et-td-nome{
-  position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:8px 14px;font-weight:700;color:var(--cinza-800);
-  border-right:2px solid var(--cinza-200);min-width:200px;max-width:240px;overflow:hidden;text-overflow:ellipsis;
+  position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:11px 16px;font-weight:700;color:var(--cinza-800);
+  min-width:210px;max-width:250px;overflow:hidden;text-overflow:ellipsis;border-radius:8px;
+  box-shadow:inset 0 0 0 1px var(--cinza-200);
 }
 .et-matrix tbody tr:nth-child(even) td.et-td-nome{background:var(--cinza-50);}
-.et-matrix tbody tr:nth-child(even) td.et-cell{background:rgba(0,0,0,.015);}
-.et-cell{width:34px;height:34px;cursor:pointer;font-weight:700;font-size:11px;color:#fff;transition:.1s;}
-.et-cell:hover{outline:2px solid var(--azul-500);outline-offset:-2px;}
-.et-cell.empty{color:var(--cinza-400);background:#fff;}
-.et-cell.et-weekend-col{background:#f7f8fb;}
+.et-matrix tbody tr:nth-child(even) td.et-cell.empty{background:#fbfcfe;}
+.et-cell{
+  width:52px;height:44px;cursor:pointer;font-weight:700;font-size:10.5px;color:#fff;transition:.12s;
+  border-radius:8px;padding:5px 4px;line-height:1.25;white-space:normal;word-break:break-word;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.05);
+}
+.et-cell:hover{outline:2px solid var(--azul-500);outline-offset:1px;}
+.et-cell.empty{color:var(--cinza-400);background:#fff;box-shadow:inset 0 0 0 1px var(--cinza-200);}
+.et-cell.et-weekend-col{background:#eef1f6;}
+.et-cell.et-weekend-col:not(.empty){box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
 .et-cell.et-feriado-col{box-shadow:inset 0 0 0 2px var(--rosa-600);}
 
 .et-picker{
