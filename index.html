@@ -231,6 +231,57 @@ tbody tr:hover{background:var(--azul-100);}
 .esc-dot.atestado{background:var(--critico);}
 .esc-dot.sobreaviso{background:#7c3aed;}
 
+/* ============================================================
+   ESCALA DE TRABALHO — módulo de montagem/gestão da escala mensal
+   ============================================================ */
+.et-subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;border-bottom:1px solid var(--cinza-200);padding-bottom:12px;}
+.et-subtab{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;background:var(--cinza-100);color:var(--cinza-600);border:none;}
+.et-subtab.active{background:var(--azul-600);color:#fff;}
+.et-panel{display:none;}
+.et-panel.active{display:block;}
+
+.et-matrix-wrap{overflow:auto;max-height:64vh;border:1px solid var(--cinza-200);border-radius:12px;position:relative;}
+.et-matrix{border-collapse:separate;border-spacing:0;font-size:12px;min-width:100%;}
+.et-matrix th, .et-matrix td{border-right:1px solid var(--cinza-100);border-bottom:1px solid var(--cinza-100);padding:0;text-align:center;white-space:nowrap;}
+.et-matrix thead th{
+  position:sticky;top:0;z-index:3;background:var(--azul-900);color:#fff;font-size:10.5px;font-weight:700;
+  padding:8px 4px;min-width:34px;
+}
+.et-matrix thead th.et-th-nome{left:0;z-index:5;min-width:200px;text-align:left;padding-left:14px;background:var(--azul-900);}
+.et-matrix thead th.et-weekend{background:#1a2f5c;}
+.et-matrix thead th.et-feriado{background:var(--rosa-600);}
+.et-matrix tbody td.et-td-nome{
+  position:sticky;left:0;z-index:2;background:#fff;text-align:left;padding:8px 14px;font-weight:700;color:var(--cinza-800);
+  border-right:2px solid var(--cinza-200);min-width:200px;max-width:240px;overflow:hidden;text-overflow:ellipsis;
+}
+.et-matrix tbody tr:nth-child(even) td.et-td-nome{background:var(--cinza-50);}
+.et-matrix tbody tr:nth-child(even) td.et-cell{background:rgba(0,0,0,.015);}
+.et-cell{width:34px;height:34px;cursor:pointer;font-weight:700;font-size:11px;color:#fff;transition:.1s;}
+.et-cell:hover{outline:2px solid var(--azul-500);outline-offset:-2px;}
+.et-cell.empty{color:var(--cinza-400);background:#fff;}
+.et-cell.et-weekend-col{background:#f7f8fb;}
+.et-cell.et-feriado-col{box-shadow:inset 0 0 0 2px var(--rosa-600);}
+
+.et-picker{
+  position:fixed;z-index:400;background:#fff;border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.25);
+  padding:8px;display:none;min-width:190px;border:1px solid var(--cinza-200);
+}
+.et-picker.show{display:block;}
+.et-picker-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;}
+.et-picker-item:hover{background:var(--cinza-100);}
+.et-picker-dot{width:12px;height:12px;border-radius:4px;flex-shrink:0;}
+.et-picker-clear{border-top:1px solid var(--cinza-100);margin-top:4px;padding-top:8px;color:var(--critico);font-weight:700;}
+
+.et-tipo-card{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--cinza-200);border-radius:10px;margin-bottom:8px;}
+.et-tipo-swatch{width:34px;height:34px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;}
+.et-alert-list .alert-row span:first-child{display:flex;align-items:center;gap:6px;}
+
+@media print{
+  body *{visibility:hidden;}
+  #et-print-area, #et-print-area *{visibility:visible;}
+  #et-print-area{position:absolute;top:0;left:0;width:100%;}
+}
+
 /* ---------- ALERTAS DE ESCALA ---------- */
 .alert-box{
   background:#fff3dc;border:1px solid #f6dfa8;border-radius:12px;padding:14px 16px;margin-bottom:18px;
@@ -378,6 +429,9 @@ tbody tr:hover{background:var(--azul-100);}
       <li data-roles="master"><a data-page="ferias">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 12a8 8 0 1 1 16 0M4 12a8 8 0 0 0 16 0"/><path d="M9 8v8M15 8v8" stroke-dasharray="1 2"/><circle cx="12" cy="6" r="1.5"/></svg>
         Férias</a></li>
+      <li data-roles="master"><a data-page="escalatrabalho">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v3M16 4v3"/><rect x="6" y="13" width="3" height="3" rx="0.5"/><rect x="10.5" y="13" width="3" height="3" rx="0.5"/><rect x="15" y="13" width="3" height="3" rx="0.5"/></svg>
+        Escala de Trabalho</a></li>
       <li data-roles="tecnico"><a data-page="minha">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 6.9L21 11l-6.6 2.1L12 20l-2.4-6.9L3 11l6.6-2.1z"/></svg>
         Minha Pontuação</a></li>
@@ -1047,6 +1101,279 @@ tbody tr:hover{background:var(--azul-100);}
       </div>
     </div>
 
+    <!-- PAGE: ESCALA DE TRABALHO (somente Master) -->
+    <div class="content" id="pageEscalatrabalho" style="display:none;">
+
+      <div class="filters" style="margin-bottom:16px;">
+        <div class="f-group">
+          <label>Mês</label>
+          <select id="etMes"></select>
+        </div>
+        <div class="f-group">
+          <label>Ano</label>
+          <select id="etAno"></select>
+        </div>
+        <div class="f-actions" style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="etNovaEscala()">+ Nova Escala</button>
+          <button class="btn btn-pink btn-sm" onclick="etSalvarEscala()">💾 Salvar</button>
+          <button class="btn btn-outline btn-sm" onclick="etAbrirDuplicar()">⧉ Duplicar</button>
+          <button class="btn btn-outline btn-sm" onclick="etExportarExcel()">⬇ Exportar Excel</button>
+          <button class="btn btn-outline btn-sm" onclick="etExportarPDF()">⬇ Exportar PDF</button>
+          <button class="btn btn-outline btn-sm" onclick="etImprimir()">🖨 Imprimir</button>
+        </div>
+      </div>
+
+      <div class="et-subtabs">
+        <button class="et-subtab active" data-etpanel="matriz" onclick="etGoTab('matriz')">Matriz da Escala</button>
+        <button class="et-subtab" data-etpanel="colaboradores" onclick="etGoTab('colaboradores')">Colaboradores</button>
+        <button class="et-subtab" data-etpanel="tipos" onclick="etGoTab('tipos')">Tipos de Escala</button>
+        <button class="et-subtab" data-etpanel="feriados" onclick="etGoTab('feriados')">Feriados</button>
+        <button class="et-subtab" data-etpanel="historico" onclick="etGoTab('historico')">Histórico</button>
+      </div>
+
+      <!-- SUB-ABA: MATRIZ -->
+      <div class="et-panel active" id="etPanelMatriz">
+
+        <div id="etAlertas"></div>
+
+        <div class="filters" style="margin-bottom:14px;">
+          <div class="f-group">
+            <label>Buscar colaborador</label>
+            <input type="text" id="etBusca" placeholder="Nome...">
+          </div>
+          <div class="f-group">
+            <label>Equipe</label>
+            <select id="etFiltroEquipe"><option value="">Todas</option></select>
+          </div>
+          <div class="f-group">
+            <label>Supervisor</label>
+            <select id="etFiltroSupervisor"><option value="">Todos</option></select>
+          </div>
+          <div class="f-group">
+            <label>Função</label>
+            <select id="etFiltroFuncao"><option value="">Todas</option></select>
+          </div>
+          <div class="f-group">
+            <label>Status</label>
+            <select id="etFiltroStatus">
+              <option value="ativo">Somente ativos</option>
+              <option value="">Todos</option>
+              <option value="inativo">Somente inativos</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="et-print-area">
+          <h3 id="etMatrixTitle" style="font-size:15px;color:var(--azul-900);margin-bottom:10px;">Escala — -</h3>
+          <div class="et-matrix-wrap">
+            <table class="et-matrix" id="etMatrixTable"></table>
+          </div>
+          <div class="esc-legend" id="etLegenda" style="margin-top:14px;"></div>
+        </div>
+
+        <div class="section-title"><span class="bar"></span>Resumo da escala</div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Resumo geral</h3>
+            <div class="chip-row" id="etResumoGeral"></div>
+          </div>
+          <div class="card">
+            <h3>Resumo individual</h3>
+            <div class="f-group" style="margin-bottom:10px;">
+              <label>Colaborador</label>
+              <select id="etResumoColab"><option value="">Selecione</option></select>
+            </div>
+            <div class="chip-row" id="etResumoIndividual"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-ABA: COLABORADORES -->
+      <div class="et-panel" id="etPanelColaboradores">
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="etColabFormTitle">Adicionar colaborador</h3>
+            <input type="hidden" id="etColabEditId">
+            <div class="f-group" style="margin-bottom:10px;">
+              <label>Nome completo</label>
+              <input type="text" id="etColabNome" placeholder="Nome completo">
+            </div>
+            <div class="grid-2" style="gap:10px;">
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Matrícula/Código</label>
+                <input type="text" id="etColabMatricula" placeholder="Opcional">
+              </div>
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Função/Cargo</label>
+                <input type="text" id="etColabFuncao" placeholder="Ex: Técnico">
+              </div>
+            </div>
+            <div class="grid-2" style="gap:10px;">
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Equipe/Setor</label>
+                <input type="text" id="etColabEquipe" placeholder="Ex: Redes PE">
+              </div>
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Supervisor</label>
+                <input type="text" id="etColabSupervisor" placeholder="Ex: Allan Macedo">
+              </div>
+            </div>
+            <div class="grid-2" style="gap:10px;">
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Tipo de escala padrão</label>
+                <select id="etColabTipoPadrao"></select>
+              </div>
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Status</label>
+                <select id="etColabStatus">
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="etSalvarColaborador()">+ Salvar colaborador</button>
+            <button class="btn btn-outline btn-sm" id="etColabCancelBtn" style="display:none;" onclick="etCancelarEdicaoColaborador()">Cancelar edição</button>
+            <div class="upload-status" id="etColabStatusMsg"></div>
+          </div>
+          <div class="card">
+            <h3>Importar colaboradores (Excel)</h3>
+            <div class="uploadbox" onclick="document.getElementById('etColabFile').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              <div class="u-title">Selecionar planilha (.xlsx)</div>
+              <div class="u-sub">Colunas: Nome, Matrícula, Função, Equipe, Supervisor</div>
+            </div>
+            <input type="file" id="etColabFile" accept=".xlsx,.xls" style="display:none;">
+            <div class="upload-status" id="etImportStatus"></div>
+            <div style="margin-top:16px;font-size:12px;color:var(--cinza-600);line-height:1.6;">
+              O cadastro de colaboradores é feito uma única vez e reaproveitado automaticamente em todas as escalas mensais.
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title"><span class="bar"></span>Colaboradores cadastrados</div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Nome</th><th>Matrícula</th><th>Função</th><th>Equipe</th><th>Supervisor</th><th>Escala padrão</th><th>Status</th><th></th></tr></thead>
+              <tbody id="etColabBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-ABA: TIPOS DE ESCALA -->
+      <div class="et-panel" id="etPanelTipos">
+        <div class="grid-2">
+          <div class="card">
+            <h3 id="etTipoFormTitle">Novo tipo de escala</h3>
+            <input type="hidden" id="etTipoEditId">
+            <div class="grid-2" style="gap:10px;">
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Sigla</label>
+                <input type="text" id="etTipoSigla" maxlength="6" placeholder="Ex: T1">
+              </div>
+              <div class="f-group" style="margin-bottom:10px;">
+                <label>Cor</label>
+                <input type="color" id="etTipoCor" value="#2563c9" style="height:40px;padding:2px;">
+              </div>
+            </div>
+            <div class="f-group" style="margin-bottom:10px;">
+              <label>Descrição</label>
+              <input type="text" id="etTipoDescricao" placeholder="Ex: Turno 1 - Manhã">
+            </div>
+            <div class="f-group" style="margin-bottom:10px;">
+              <label>Classificação</label>
+              <select id="etTipoClasse">
+                <option value="trabalho">Trabalho</option>
+                <option value="folga">Folga</option>
+                <option value="plantao">Plantão</option>
+                <option value="feriado">Feriado</option>
+                <option value="atestado">Atestado</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+            <div class="f-group" style="margin-bottom:14px;">
+              <label>Observação</label>
+              <input type="text" id="etTipoObs" placeholder="Opcional">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="etSalvarTipo()">+ Salvar tipo</button>
+            <button class="btn btn-outline btn-sm" id="etTipoCancelBtn" style="display:none;" onclick="etCancelarEdicaoTipo()">Cancelar edição</button>
+            <div class="upload-status" id="etTipoStatusMsg"></div>
+          </div>
+          <div class="card">
+            <h3>Tipos cadastrados</h3>
+            <div id="etTiposList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-ABA: FERIADOS -->
+      <div class="et-panel" id="etPanelFeriados">
+        <div class="grid-2">
+          <div class="card">
+            <h3>Cadastrar feriado</h3>
+            <div class="f-group" style="margin-bottom:10px;">
+              <label>Data</label>
+              <input type="date" id="etFeriadoData">
+            </div>
+            <div class="f-group" style="margin-bottom:10px;">
+              <label>Nome do feriado</label>
+              <input type="text" id="etFeriadoNome" placeholder="Ex: Independência do Brasil">
+            </div>
+            <div class="f-group" style="margin-bottom:14px;">
+              <label>Tipo</label>
+              <select id="etFeriadoTipo">
+                <option value="Nacional">Nacional</option>
+                <option value="Estadual">Estadual</option>
+                <option value="Municipal">Municipal</option>
+                <option value="Empresa">Empresa</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="etSalvarFeriado()">+ Cadastrar feriado</button>
+            <div class="upload-status" id="etFeriadoStatusMsg"></div>
+          </div>
+          <div class="card">
+            <h3>Feriados cadastrados</h3>
+            <div id="etFeriadosList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-ABA: HISTÓRICO -->
+      <div class="et-panel" id="etPanelHistorico">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mês/Ano</th><th>Data de criação</th><th>Criado por</th><th>Status</th><th>Colaboradores</th><th>Ações</th></tr></thead>
+              <tbody id="etHistoricoBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MODAL: DUPLICAR ESCALA -->
+    <div class="modal-bg" id="etDupModalBg">
+      <div class="modal" style="max-width:420px;">
+        <button class="modal-close" onclick="document.getElementById('etDupModalBg').classList.remove('show')">✕</button>
+        <h2>Duplicar escala</h2>
+        <div class="m-sub">Copia os lançamentos de um mês para outro (você poderá ajustar antes de salvar)</div>
+        <div class="f-group" style="margin-bottom:12px;">
+          <label>Escala origem</label>
+          <select id="etDupOrigem"></select>
+        </div>
+        <div class="f-group" style="margin-bottom:16px;">
+          <label>Escala destino (mês/ano atual da tela)</label>
+          <input type="text" id="etDupDestino" disabled>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="etConfirmarDuplicar()">Copiar escala</button>
+      </div>
+    </div>
+
+    <!-- POPUP: SELETOR DE CÉLULA -->
+    <div class="et-picker" id="etPicker"></div>
+
     <!-- PAGE: MINHA PONTUAÇÃO (somente Técnico) -->
     <div class="content" id="pageMinha" style="display:none;">
       <div class="card" style="margin-bottom:20px;">
@@ -1145,6 +1472,8 @@ let ESCALA_DATA = {"escalas": {"219497": {"2026-04-01": "NOR 8~18 S.A", "2026-04
 let ORG_DATA = {"gerente": "Ivan Borges", "coordenadores": ["João Paulo", "Alexandre Castelo", "Rodolfo Barros"], "estrutura": {"João Paulo": {"Allan Macedo": ["SAULO BATISTA", "NERIVALDO LIMA LOPES", "JOSE ADEILSON DE OLIVEIRA SILVA", "VALDENILTON CARLOS DANTAS", "JOSE HILDEBERTO JUNIOR", "MAXSUEL PEREIRA PINTO", "GILBERTO BEZERRA DE LIMA", "RAFAEL DE AZEVEDO ARAUJO"], "Hian Rael": ["FRANCISCO CLEBER LOURENCO JUNIOR", "FERNANDO HENRIQUE", "EVANI EULEM DA SILVA", "WARLYS NASCIMENTO DE LIMA", "LEANDRO RAIMUNDO DA SILVA", "IVAMARIO BATISTA SILVA", "ALAI TEIXEIRA DE ARAUJO NETO", "GABRIEL PIMENTEL DOS SANTOS", "EMANUEL LAUDSON ALBUQUERQUE COSTA FREITAS", "FELIPE TEIXEIRA DE OLIVEIRA", "JEFFERSON DUARTE FERREIRA", "KLEYBISON DOUGLAS CUSTODIO DE LIMA", "EMERSON DA SILVA GOMES", "LUCAS MATHEUS"]}, "Alexandre Castelo": {"Walfredo": ["ARIGILVANDO DE LIMA SILVA", "JOÃO BATISTA FABRICIO FELIPE", "ISRAEL BRUNO DA SILVA", "JOELSON ALVES DA SILVA ANGELO", "WELLINGTON LIMEIRA DE ARAUJO", "JOHN GOMES PETERSON", "EZEQUIEL PEREIRA TEIXEIRA", "CLEYTON BEZERRA FERNANDES", "ERIVALDO JACINTO FERNANDES", "TIAGO DE VERAS MATIAS", "LUCAS SILVA LEITE", "JOSE JEFFERSON DE OLIVEIRA ALVES", "LUIDYS LUCIANO DE SOUZA COSTA", "JOSE CLAUDIO MARTINS BATISTA"], "Danilo Alves": ["WELLINGTON ROSSAN MORAIS CAMPOS", "FRANCIEL TAVARES DA COSTA", "JUCLEANDO MAGNO DA SILVA", "DIEGO BATISTA DA SILVA", "JOAQUIM MARCELO VASCONCELOS VALDEVINO", "MICHAEL ANDRADE LISBOA", "JOSE SAMUEL DE FIGUEIREDO PINHEIRO", "FANUEL DUARTE DO NASCIMENTO", "JOSE JESUS RIBEIRO FELIX", "YSMAEL PEREIRA DA SILVA", "MAXWEL DOMICIANO DOS SANTOS", "MATEUS JOSE DA SILVA"]}, "Rodolfo Barros": {"Lucas da Silva": ["JOÃO VICTOR PEREIRA DOS SANTOS", "JONATAS SENA DE OLIVEIRA", "GUILHERME RAMOS DE JESUS JUNIOR", "JOEDISON VIEIRA LIMA", "GEAN PEREIRA DA SILVA", "ANALBERG TELES DA SILVA", "ADILTON PINTO DOS SANTOS", "ADRIANO PINTO DOS SANTOS", "ROBERIO SILVA OLIVEIRA", "LAFAIETE MAIA DE FREITAS NETO", "RERISSON OLIVEIRA DE ARAUJO", "NATAN OLIVEIRA DE ARAUJO"], "Rodolfo Eduardo": ["EFRAIM PESSOA DE BARROS SILVA", "LEANDRO TAVARES DE SOUZA", "GENIBERG LIMA DA SILVA", "EDVALDO MARLOS XAVIER MUNIZ", "GILMAR NOGUEIRA PEREIRA", "JOSE EDVALDO GOMES FERRAZ"]}}, "colab_org": {"SAULO BATISTA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "NERIVALDO LIMA LOPES": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "JOSE ADEILSON DE OLIVEIRA SILVA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "VALDENILTON CARLOS DANTAS": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "JOSE HILDEBERTO JUNIOR": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "MAXSUEL PEREIRA PINTO": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "GILBERTO BEZERRA DE LIMA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "RAFAEL DE AZEVEDO ARAUJO": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Allan Macedo"}, "FRANCISCO CLEBER LOURENCO JUNIOR": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "FERNANDO HENRIQUE": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "EVANI EULEM DA SILVA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "WARLYS NASCIMENTO DE LIMA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "LEANDRO RAIMUNDO DA SILVA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "IVAMARIO BATISTA SILVA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "ALAI TEIXEIRA DE ARAUJO NETO": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "GABRIEL PIMENTEL DOS SANTOS": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "EMANUEL LAUDSON ALBUQUERQUE COSTA FREITAS": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "FELIPE TEIXEIRA DE OLIVEIRA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "JEFFERSON DUARTE FERREIRA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "KLEYBISON DOUGLAS CUSTODIO DE LIMA": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "EMERSON DA SILVA GOMES": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "LUCAS MATHEUS": {"gerente": "Ivan Borges", "coordenador": "João Paulo", "supervisor": "Hian Rael"}, "ARIGILVANDO DE LIMA SILVA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "JOÃO BATISTA FABRICIO FELIPE": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "ISRAEL BRUNO DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "JOELSON ALVES DA SILVA ANGELO": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "WELLINGTON LIMEIRA DE ARAUJO": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "JOHN GOMES PETERSON": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "EZEQUIEL PEREIRA TEIXEIRA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "CLEYTON BEZERRA FERNANDES": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "ERIVALDO JACINTO FERNANDES": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "TIAGO DE VERAS MATIAS": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "LUCAS SILVA LEITE": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "JOSE JEFFERSON DE OLIVEIRA ALVES": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "LUIDYS LUCIANO DE SOUZA COSTA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "JOSE CLAUDIO MARTINS BATISTA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Walfredo"}, "WELLINGTON ROSSAN MORAIS CAMPOS": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "FRANCIEL TAVARES DA COSTA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "JUCLEANDO MAGNO DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "DIEGO BATISTA DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "JOAQUIM MARCELO VASCONCELOS VALDEVINO": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "MICHAEL ANDRADE LISBOA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "JOSE SAMUEL DE FIGUEIREDO PINHEIRO": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "FANUEL DUARTE DO NASCIMENTO": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "JOSE JESUS RIBEIRO FELIX": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "YSMAEL PEREIRA DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "MAXWEL DOMICIANO DOS SANTOS": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "MATEUS JOSE DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Alexandre Castelo", "supervisor": "Danilo Alves"}, "JOÃO VICTOR PEREIRA DOS SANTOS": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "JONATAS SENA DE OLIVEIRA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "GUILHERME RAMOS DE JESUS JUNIOR": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "JOEDISON VIEIRA LIMA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "GEAN PEREIRA DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "ANALBERG TELES DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "ADILTON PINTO DOS SANTOS": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "ADRIANO PINTO DOS SANTOS": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "ROBERIO SILVA OLIVEIRA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "LAFAIETE MAIA DE FREITAS NETO": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "RERISSON OLIVEIRA DE ARAUJO": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "NATAN OLIVEIRA DE ARAUJO": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Lucas da Silva"}, "EFRAIM PESSOA DE BARROS SILVA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Rodolfo Eduardo"}, "LEANDRO TAVARES DE SOUZA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Rodolfo Eduardo"}, "GENIBERG LIMA DA SILVA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Rodolfo Eduardo"}, "EDVALDO MARLOS XAVIER MUNIZ": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Rodolfo Eduardo"}, "GILMAR NOGUEIRA PEREIRA": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Rodolfo Eduardo"}, "JOSE EDVALDO GOMES FERRAZ": {"gerente": "Ivan Borges", "coordenador": "Rodolfo Barros", "supervisor": "Rodolfo Eduardo"}}};
 
 let FERIAS = [{"id": 1000, "colaborador": "RODOLFO BARROS", "inicio": "2026-11-03", "fim": "2026-11-22", "qtdGozo": 20, "qtdAbono": 0, "periodoAbono": ""}, {"id": 1001, "colaborador": "WALFREDO BARBOSA", "inicio": "2026-11-03", "fim": "2026-11-22", "qtdGozo": 20, "qtdAbono": 0, "periodoAbono": ""}, {"id": 1002, "colaborador": "ALLAN MACEDO", "inicio": "2026-12-21", "fim": "2027-01-04", "qtdGozo": 15, "qtdAbono": 0, "periodoAbono": ""}, {"id": 1003, "colaborador": "ALLAN MACEDO", "inicio": "2027-01-18", "fim": "2027-01-22", "qtdGozo": 5, "qtdAbono": 0, "periodoAbono": ""}, {"id": 1004, "colaborador": "DANILO ALVES", "inicio": "2027-01-14", "fim": "2027-02-02", "qtdGozo": 20, "qtdAbono": 0, "periodoAbono": ""}, {"id": 1005, "colaborador": "HIAN RAEL ARCANJO DE SOUZA", "inicio": "2027-02-15", "fim": "2027-03-01", "qtdGozo": 15, "qtdAbono": 10, "periodoAbono": "Depois do Gozo"}, {"id": 1006, "colaborador": "HIAN RAEL ARCANJO DE SOUZA", "inicio": "2027-06-21", "fim": "2027-06-25", "qtdGozo": 5, "qtdAbono": 10, "periodoAbono": "Depois do Gozo"}];
+
+const ET_SEED_DATA = {"colaboradores": [{"id": "525667", "nome": "ADILTON PINTO DOS SANTOS", "matricula": "525667", "funcao": "MULTISKILL", "equipe": "FLF (FILADÉLDIA-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "520300", "nome": "ADRIANO PINTO DOS SANTOS", "matricula": "520300", "funcao": "CABISTA", "equipe": "FLF (FILADÉLDIA-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "168034", "nome": "ALAI TEIXEIRA DE ARAUJO NETO", "matricula": "168034", "funcao": "MULTSKILL", "equipe": "NTL-AREZ (NATAL-RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "523467", "nome": "ANALBERG TELES DA SILVA", "matricula": "523467", "funcao": "CABISTA", "equipe": "FLF (FILADÉLDIA-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "263491", "nome": "ARIGILVANDO DE LIMA SILVA", "matricula": "263491", "funcao": "MULTSKILL", "equipe": "GBI (GUARABIRA - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "972466", "nome": "CLEYTON BEZERRA FERNANDES", "matricula": "972466", "funcao": "CABISTA", "equipe": "CGE (CAMPINA GRANDE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "480", "nome": "DIEGO BATISTA DA SILVA", "matricula": "480", "funcao": "CABISTA", "equipe": "MER (MONTEIRO - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "75", "nome": "EDVALDO MARLOS XAVIER MUNIZ", "matricula": "75", "funcao": "CABISTA", "equipe": "LJD-GUS (LAJEDO - PE)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "80", "nome": "EFRAIM PESSOA DE BARROS SILVA", "matricula": "80", "funcao": "MULTISKILL", "equipe": "LJD-GUS (GARANHUNS - PE)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "219497", "nome": "EMANUEL LAUDSON ALBUQUERQUE COSTA FREITAS", "matricula": "219497", "funcao": "MULTSKILL", "equipe": "MCU-JC (MACAU/RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "707907", "nome": "EMERSON DA SILVA GOMES", "matricula": "707907", "funcao": "MULTSKILL", "equipe": "JC-TOUROS (TOUROS - RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "260113", "nome": "ERIVALDO JACINTO FERNANDES", "matricula": "260113", "funcao": "MULTSKILL", "equipe": "CGE (CAMPINA GRANDE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "384708", "nome": "EVANI EULEM DA SILVA", "matricula": "384708", "funcao": "MULTSKILL", "equipe": "NTL-AREZ (AREZ/RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "341053", "nome": "EZEQUIEL PEREIRA TEIXEIRA", "matricula": "341053", "funcao": "MULTSKILL", "equipe": "CGE (CAMPINA GRANDE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "542203", "nome": "FABIO OLIVEIRA LIMA", "matricula": "542203", "funcao": "MULTISKILL", "equipe": "CCG (CAPIM GROSSO-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "754", "nome": "FANUEL DUARTE DO NASCIMENTO", "matricula": "754", "funcao": "CABISTA", "equipe": "SQX (SAO JOÃO DO RIO DO PEIXE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "79593", "nome": "FELIPE TEIXEIRA DE OLIVEIRA", "matricula": "79593", "funcao": "CABISTA", "equipe": "MCU-JC (MACAU/RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "41326", "nome": "FRANCIEL TAVARES DA COSTA", "matricula": "41326", "funcao": "CABISTA", "equipe": "JZH-SLZ (JUAZEIRINHO - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "692082", "nome": "FRANCISCO CLEBER LOURENCO JUNIOR", "matricula": "692082", "funcao": "CABISTA", "equipe": "JC-TOUROS (TOUROS - RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "708122", "nome": "GABRIEL PIMENTEL DOS SANTOS", "matricula": "708122", "funcao": "CABISTA", "equipe": "NTL-AREZ (NATAL-RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "518271", "nome": "GEAN PEREIRA DA SILVA", "matricula": "518271", "funcao": "MULTISKILL", "equipe": "FLF (FILADÉLDIA-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "340203", "nome": "GENIBERG LIMA DA SILVA", "matricula": "340203", "funcao": "MULTISKILL", "equipe": "LJD-GUS (LAJEDO - PE)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "178667", "nome": "GILBERTO BEZERRA DE LIMA", "matricula": "178667", "funcao": "MULTSKILL", "equipe": "PCI-PHR (PARELHAS - RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "254", "nome": "GILMAR NOGUEIRA PEREIRA", "matricula": "254", "funcao": "MULTISKILL", "equipe": "LJD-GUS (LAJEDO - PE)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "535586", "nome": "GUILHERME RAMOS DE JESUS JUNIOR", "matricula": "535586", "funcao": "MULTISKILL", "equipe": "CCG (CAPIM GROSSO-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "313275", "nome": "ISRAEL BRUNO DA SILVA", "matricula": "313275", "funcao": "MULTSKILL", "equipe": "CWX (JACUMÂ - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "915460", "nome": "IVAMARIO BATISTA SILVA", "matricula": "915460", "funcao": "CABISTA", "equipe": "NTL-TOUROS (NATAL-RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "666", "nome": "JEFFERSON DUARTE FERREIRA", "matricula": "666", "funcao": "MULTSKILL", "equipe": "NTL-AREZ (NATAL-RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "499", "nome": "JOAQUIM MARCELO VASCONCELOS VALDEVINO", "matricula": "499", "funcao": "MULTSKILL", "equipe": "MER (MONTEIRO - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "541609", "nome": "JOEDISON VIEIRA LIMA", "matricula": "541609", "funcao": "CABISTA", "equipe": "CCG (CAPIM GROSSO-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "860364", "nome": "JOELSON ALVES DA SILVA ANGELO", "matricula": "860364", "funcao": "CABISTA", "equipe": "CWX (JACUMÂ - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "912281", "nome": "JOHN GOMES PETERSON", "matricula": "912281", "funcao": "CABISTA", "equipe": "CGE (CAMPINA GRANDE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "442", "nome": "JOSE ADEILSON DE OLIVEIRA SILVA", "matricula": "442", "funcao": "MULTSKILL", "equipe": "PCI-PHR (PICUI - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "1070779", "nome": "JOSE CLAUDIO MARTINS BATISTA", "matricula": "1070779", "funcao": "CABISTA", "equipe": "CWX (JACUMÂ - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "250", "nome": "JOSE EDVALDO GOMES FERRAZ", "matricula": "250", "funcao": "CABISTA", "equipe": "LJD-GUS (LAJEDO - PE)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "351236", "nome": "JOSE HILDEBERTO JUNIOR", "matricula": "351236", "funcao": "MULTSKILL", "equipe": "SNZ-CIC (SANTA CRUZ/RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "273026", "nome": "JOSE JEFFERSON DE OLIVEIRA ALVES", "matricula": "273026", "funcao": "CABISTA", "equipe": "GBI (GUARABIRA - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "749", "nome": "JOSE JESUS RIBEIRO FELIX", "matricula": "749", "funcao": "MULTSKILL", "equipe": "SQX (SAO JOÃO DO RIO DO PEIXE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "755", "nome": "JOSE SAMUEL DE FIGUEIREDO PINHEIRO", "matricula": "755", "funcao": "MULTSKILL", "equipe": "SQX (SAO JOÃO DO RIO DO PEIXE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "861614", "nome": "JOÃO BATISTA FABRICIO FELIPE", "matricula": "861614", "funcao": "CABISTA", "equipe": "GBI (GUARABIRA - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "506", "nome": "JUCLEANDO MAGNO DA SILVA", "matricula": "506", "funcao": "MULTSKILL", "equipe": "MER (MONTEIRO - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "844569", "nome": "KLEYBISON DOUGLAS CUSTODIO DE LIMA", "matricula": "844569", "funcao": "CABISTA", "equipe": "NTL-TOUROS (NATAL-RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "517692", "nome": "LAFAIETE MAIA DE FREITAS NETO", "matricula": "517692", "funcao": "CABISTA", "equipe": "PNF (PONTO NOVO-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "669", "nome": "LEANDRO RAIMUNDO DA SILVA", "matricula": "669", "funcao": "MULTSKILL", "equipe": "NTL-TOUROS (NATAL-RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "172050", "nome": "LEANDRO TAVARES DE SOUZA", "matricula": "172050", "funcao": "CABISTA", "equipe": "LJD-GUS (GARANHUNS - PE)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "273027", "nome": "LUCAS SILVA LEITE", "matricula": "273027", "funcao": "MULTSKILL", "equipe": "GBI (GUARABIRA - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "576145", "nome": "LUIDYS LUCIANO DE SOUZA COSTA", "matricula": "576145", "funcao": "MULTSKILL", "equipe": "CWX (JACUMÂ - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "795481", "nome": "MATEUS JOSE DA SILVA", "matricula": "795481", "funcao": "CABISTA", "equipe": "JZH-SLZ (SANTA LUZIA - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "386235", "nome": "MAXSUEL PEREIRA PINTO", "matricula": "386235", "funcao": "CABISTA", "equipe": "SNZ-CIC (SANTA CRUZ/RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "49605", "nome": "MAXWEL DOMICIANO DOS SANTOS", "matricula": "49605", "funcao": "MULTSKILL", "equipe": "JZH-SLZ (SANTA LUZIA - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "71946", "nome": "MICHAEL ANDRADE LISBOA", "matricula": "71946", "funcao": "CABISTA", "equipe": "MER (MONTEIRO - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "545122", "nome": "NATAN OLIVEIRA DE ARAUJO", "matricula": "545122", "funcao": "CABISTA", "equipe": "CFS (CAMPO FORMOSO-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "146447", "nome": "NERIVALDO LIMA LOPES", "matricula": "146447", "funcao": "CABISTA", "equipe": "SNZ-CIC (CAICO - RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "179851", "nome": "RAFAEL DE AZEVEDO ARAUJO", "matricula": "179851", "funcao": "CABISTA", "equipe": "PCI-PHR (PARELHAS - RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "544498", "nome": "RERISSON OLIVEIRA DE ARAUJO", "matricula": "544498", "funcao": "MULTISKILL", "equipe": "CFS (CAMPO FORMOSO-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "530779", "nome": "ROBERIO SILVA OLIVEIRA", "matricula": "530779", "funcao": "MULTISKILL", "equipe": "PNF (PONTO NOVO-BA)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "683825", "nome": "SAULO BATISTA", "matricula": "683825", "funcao": "MULTSKILL", "equipe": "SNZ-CIC (CAICO - RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "404195", "nome": "TIAGO DE VERAS MATIAS", "matricula": "404195", "funcao": "CABISTA", "equipe": "CGE (CAMPINA GRANDE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "58781", "nome": "VALDENILTON CARLOS DANTAS", "matricula": "58781", "funcao": "CABISTA", "equipe": "PCI-PHR (PICUI - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "384141", "nome": "WARLYS NASCIMENTO DE LIMA", "matricula": "384141", "funcao": "CABISTA", "equipe": "NTL-AREZ (AREZ/RN)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "204745", "nome": "WELLINGTON LIMEIRA DE ARAUJO", "matricula": "204745", "funcao": "MULTSKILL", "equipe": "CGE (CAMPINA GRANDE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "46720", "nome": "WELLINGTON ROSSAN MORAIS CAMPOS", "matricula": "46720", "funcao": "MULTSKILL", "equipe": "JZH-SLZ (JUAZEIRINHO - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}, {"id": "564347", "nome": "YSMAEL PEREIRA DA SILVA", "matricula": "564347", "funcao": "CABISTA", "equipe": "SQX (SAO JOÃO DO RIO DO PEIXE - PB)", "supervisor": "", "tipoPadrao": "nor818", "status": "ativo"}], "tiposEscala": [{"id": "nor817s", "sigla": "NOR 8~17.S", "descricao": "Turno normal 8h-17h (S)", "cor": "#2563c9", "classe": "trabalho", "obs": "Importado da escala online"}, {"id": "nor817sa", "sigla": "NOR 8~17 S.A", "descricao": "Turno normal 8h-17h (S.A)", "cor": "#1a4fa0", "classe": "trabalho", "obs": "Importado da escala online"}, {"id": "nor818sa", "sigla": "NOR 8~18 S.A", "descricao": "Turno normal 8h-18h (S.A)", "cor": "#123a7a", "classe": "trabalho", "obs": "Importado da escala online"}, {"id": "nor818", "sigla": "NOR 8~18.", "descricao": "Turno normal 8h-18h", "cor": "#0b2c5c", "classe": "trabalho", "obs": "Importado da escala online"}, {"id": "dsr", "sigla": "DSR", "descricao": "Descanso Semanal Remunerado", "cor": "#8a93a3", "classe": "outro", "obs": "Importado da escala online"}, {"id": "folga", "sigla": "FOLGA", "descricao": "Folga", "cor": "#5b6474", "classe": "folga", "obs": "Importado da escala online"}, {"id": "folgabh", "sigla": "FOLGA BH", "descricao": "Folga (banco de horas)", "cor": "#18a95a", "classe": "folga", "obs": "Importado da escala online"}, {"id": "sobreaviso", "sigla": "SOBRE AVISO", "descricao": "Sobre aviso", "cor": "#7c3aed", "classe": "plantao", "obs": "Importado da escala online"}, {"id": "ferias", "sigla": "FÉRIAS", "descricao": "Férias", "cor": "#0f9488", "classe": "outro", "obs": "Importado da escala online"}, {"id": "feriado", "sigla": "FERIADO", "descricao": "Feriado", "cor": "#e0a52c", "classe": "feriado", "obs": "Importado da escala online"}, {"id": "atestado", "sigla": "ATESTADO", "descricao": "Atestado", "cor": "#e0293f", "classe": "atestado", "obs": "Importado da escala online"}], "escalas": [{"id": "seed_8_2026", "mes": 8, "ano": 2026, "dados": {"219497": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "79593": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "666": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "844569": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "707907": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "nor818", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "folgabh", "30": "dsr", "31": "nor818sa"}, "692082": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "351236": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "386235": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "178667": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "folgabh", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "folgabh", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "179851": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "folgabh", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "folgabh", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "46720": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "41326": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "506": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "480": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "755": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "754": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "folgabh", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "263491": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "folgabh", "26": "folgabh", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "861614": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "folgabh", "26": "folgabh", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "313275": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "nor818", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "folgabh", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "folgabh", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "860364": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "nor818", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "folgabh", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "folgabh", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "204745": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "folga", "9": "dsr", "10": "nor818sa", "11": "ferias", "12": "ferias", "13": "ferias", "14": "ferias", "15": "ferias", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "912281": {"1": "nor817sa", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "folga", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "atestado", "29": "folga", "30": "dsr", "31": "nor818sa"}, "341053": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "feriado", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "ferias", "11": "ferias", "12": "ferias", "13": "ferias", "14": "ferias", "15": "ferias", "16": "ferias", "17": "ferias", "18": "ferias", "19": "ferias", "20": "ferias", "21": "ferias", "22": "ferias", "23": "ferias", "24": "ferias", "25": "ferias", "26": "ferias", "27": "ferias", "28": "ferias", "29": "ferias", "30": "ferias", "31": "ferias"}, "972466": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "feriado", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "folga", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818sa", "20": "nor818", "21": "nor817sa", "22": "dsr", "23": "sobreaviso", "24": "folga", "25": "nor818sa", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor817sa", "30": "dsr", "31": "nor818sa"}, "260113": {"1": "folga", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "folgabh", "20": "nor818", "21": "nor817sa", "22": "folga", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "404195": {"1": "folga", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "folga", "11": "nor818sa", "12": "nor818", "13": "nor818sa", "14": "nor818", "15": "nor817sa", "16": "dsr", "17": "nor818sa", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor817sa", "22": "folga", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "384708": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "384141": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "669": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "168034": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "708122": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "273027": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "folgabh", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "273026": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "folgabh", "20": "nor818sa", "21": "folgabh", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "683825": {"1": "sobreaviso", "2": "dsr", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "folgabh", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "146447": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "folgabh", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "442": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "feriado", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "58781": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "feriado", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "49605": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "795481": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "folgabh", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "499": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "71946": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "749": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "folgabh", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "564347": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "nor818", "6": "nor818sa", "7": "folgabh", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "576145": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "feriado", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "folgabh", "27": "folgabh", "28": "folgabh", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "1070779": {"1": "dsr", "2": "sobreaviso", "3": "folga", "4": "nor818sa", "5": "feriado", "6": "nor818sa", "7": "nor818", "8": "nor817sa", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818sa", "13": "nor818", "14": "nor817sa", "15": "dsr", "16": "sobreaviso", "17": "folga", "18": "nor818sa", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor817sa", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "folgabh", "27": "folgabh", "28": "nor817sa", "29": "dsr", "30": "sobreaviso", "31": "folga"}, "80": {"1": "sobreaviso", "2": "dsr", "3": "nor817s", "4": "nor817sa", "5": "nor817s", "6": "nor817sa", "7": "nor817s", "8": "folga", "9": "dsr", "10": "nor817s", "11": "nor817s", "12": "nor817sa", "13": "nor817sa", "14": "nor817s", "15": "dsr", "16": "sobreaviso", "17": "folgabh", "18": "nor817s", "19": "nor817sa", "20": "nor817s", "21": "nor817sa", "22": "sobreaviso", "23": "dsr", "24": "nor817s", "25": "nor817sa", "26": "nor817s", "27": "nor817sa", "28": "nor817s", "29": "dsr", "30": "sobreaviso", "31": "nor817s"}, "172050": {"1": "sobreaviso", "2": "dsr", "3": "nor817s", "4": "nor817sa", "5": "nor817s", "6": "nor817sa", "7": "nor817s", "8": "folga", "9": "dsr", "10": "nor817s", "11": "nor817s", "12": "nor817sa", "13": "nor817sa", "14": "nor817s", "15": "dsr", "16": "sobreaviso", "17": "folgabh", "18": "nor817s", "19": "nor817sa", "20": "nor817s", "21": "nor817sa", "22": "sobreaviso", "23": "dsr", "24": "nor817s", "25": "nor817sa", "26": "nor817s", "27": "nor817sa", "28": "nor817s", "29": "dsr", "30": "sobreaviso", "31": "nor817s"}, "340203": {"1": "folga", "2": "dsr", "3": "nor817sa", "4": "nor817s", "5": "nor817s", "6": "nor817s", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "nor817s", "11": "nor817sa", "12": "nor817s", "13": "nor817sa", "14": "nor817s", "15": "sobreaviso", "16": "dsr", "17": "nor817sa", "18": "nor817s", "19": "nor817s", "20": "nor817sa", "21": "nor817s", "22": "dsr", "23": "sobreaviso", "24": "nor817sa", "25": "nor817s", "26": "nor817s", "27": "nor817s", "28": "folgabh", "29": "sobreaviso", "30": "dsr", "31": "nor817s"}, "75": {"1": "folga", "2": "dsr", "3": "nor817sa", "4": "nor817s", "5": "nor817s", "6": "nor817s", "7": "nor817sa", "8": "dsr", "9": "sobreaviso", "10": "nor817s", "11": "nor817sa", "12": "nor817s", "13": "nor817sa", "14": "nor817s", "15": "sobreaviso", "16": "dsr", "17": "nor817sa", "18": "nor817s", "19": "nor817s", "20": "nor817sa", "21": "nor817s", "22": "dsr", "23": "sobreaviso", "24": "nor817sa", "25": "nor817s", "26": "nor817s", "27": "folgabh", "28": "nor818sa", "29": "sobreaviso", "30": "dsr", "31": "nor817s"}, "254": {"1": "ferias", "2": "dsr", "3": "nor817s", "4": "nor817s", "5": "nor817sa", "6": "nor817s", "7": "nor817sa", "8": "sobreaviso", "9": "dsr", "10": "nor817sa", "11": "nor817s", "12": "nor817s", "13": "nor817s", "14": "nor817sa", "15": "folga", "16": "dsr", "17": "nor817s", "18": "nor817sa", "19": "nor817s", "20": "nor817sa", "21": "nor817s", "22": "dsr", "23": "folga", "24": "nor817s", "25": "nor817sa", "26": "nor817sa", "27": "nor817s", "28": "nor817s", "29": "sobreaviso", "30": "dsr", "31": "nor817sa"}, "250": {"1": "dsr", "2": "sobreaviso", "3": "ferias", "4": "ferias", "5": "ferias", "6": "ferias", "7": "ferias", "8": "ferias", "9": "ferias", "10": "ferias", "11": "ferias", "12": "ferias", "13": "ferias", "14": "ferias", "15": "ferias", "16": "ferias", "17": "ferias", "18": "ferias", "19": "ferias", "20": "ferias", "21": "ferias", "22": "ferias", "23": "atestado", "24": "atestado", "25": "atestado", "26": "atestado", "27": "atestado", "28": "atestado", "29": "atestado", "30": "atestado", "31": "atestado"}, "542203": {"1": "dsr", "2": "sobreaviso", "3": "nor818", "4": "nor818", "5": "nor818", "6": "nor818", "7": "nor818", "8": "folga", "9": "dsr", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "dsr", "16": "sobreaviso", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "folga", "23": "dsr", "24": "nor818", "25": "nor818", "26": "nor818", "27": "nor818", "28": "nor818", "29": "dsr", "30": "dsr", "31": "nor818"}, "535586": {"1": "folga", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818", "6": "nor818", "7": "nor818", "8": "dsr", "9": "sobreaviso", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "folga", "16": "dsr", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "sobreaviso", "23": "dsr", "24": "nor818", "25": "nor818", "26": "nor818", "27": "nor818", "28": "folgabh", "29": "folga", "30": "dsr", "31": "nor818sa"}, "541609": {"1": "folga", "2": "dsr", "3": "nor818sa", "4": "nor818", "5": "nor818", "6": "nor818", "7": "nor818", "8": "dsr", "9": "sobreaviso", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "folga", "16": "dsr", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "sobreaviso", "23": "dsr", "24": "nor818", "25": "nor818", "26": "nor818", "27": "nor818", "28": "folgabh", "29": "folga", "30": "dsr", "31": "nor818sa"}, "523467": {"1": "folga", "2": "dsr", "3": "nor818", "4": "nor818sa", "5": "nor818", "6": "nor818", "7": "nor818", "8": "sobreaviso", "9": "dsr", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "folga", "16": "dsr", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "dsr", "23": "sobreaviso", "24": "nor818", "25": "nor818", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "folga", "30": "dsr", "31": "nor818"}, "518271": {"1": "folga", "2": "dsr", "3": "nor818", "4": "nor818sa", "5": "nor818", "6": "nor818", "7": "nor818", "8": "sobreaviso", "9": "dsr", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "folga", "16": "dsr", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "dsr", "23": "sobreaviso", "24": "nor818", "25": "nor818", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "folga", "30": "dsr", "31": "nor818"}, "525667": {"1": "folga", "2": "dsr", "3": "nor818", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor818", "8": "dsr", "9": "sobreaviso", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "folga", "16": "dsr", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "dsr", "23": "dsr", "24": "nor818", "25": "nor818", "26": "nor818sa", "27": "nor818", "28": "nor818", "29": "folga", "30": "dsr", "31": "nor818"}, "520300": {"1": "folga", "2": "dsr", "3": "nor818", "4": "nor818", "5": "nor818sa", "6": "nor818", "7": "nor818", "8": "dsr", "9": "sobreaviso", "10": "ferias", "11": "ferias", "12": "ferias", "13": "ferias", "14": "ferias", "15": "ferias", "16": "ferias", "17": "ferias", "18": "ferias", "19": "ferias", "20": "ferias", "21": "ferias", "22": "ferias", "23": "ferias", "24": "ferias", "25": "ferias", "26": "ferias", "27": "ferias", "28": "ferias", "29": "ferias", "30": "dsr", "31": "nor818"}, "530779": {"1": "sobreaviso", "2": "dsr", "3": "nor818", "4": "nor818", "5": "nor818", "6": "folgabh", "7": "nor818", "8": "folga", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "dsr", "16": "sobreaviso", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "folga", "23": "dsr", "24": "nor818", "25": "nor818sa", "26": "nor818", "27": "nor818", "28": "nor818", "29": "sobreaviso", "30": "dsr", "31": "nor818"}, "517692": {"1": "sobreaviso", "2": "dsr", "3": "nor818", "4": "nor818", "5": "nor818", "6": "folgabh", "7": "nor818", "8": "folga", "9": "dsr", "10": "nor818sa", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "dsr", "16": "sobreaviso", "17": "nor818", "18": "nor818", "19": "nor818", "20": "nor818", "21": "nor818", "22": "folga", "23": "dsr", "24": "nor818", "25": "nor818sa", "26": "nor818", "27": "nor818", "28": "nor818", "29": "sobreaviso", "30": "dsr", "31": "nor818"}, "544498": {"1": "dsr", "2": "sobreaviso", "3": "nor818", "4": "nor818", "5": "nor818", "6": "nor818", "7": "nor818sa", "8": "folga", "9": "dsr", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "sobreaviso", "16": "dsr", "17": "nor818", "18": "nor818", "19": "nor818", "20": "folgabh", "21": "nor818", "22": "folga", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818", "27": "nor818", "28": "nor818", "29": "dsr", "30": "sobreaviso", "31": "nor818"}, "545122": {"1": "dsr", "2": "sobreaviso", "3": "nor818", "4": "nor818", "5": "nor818", "6": "nor818", "7": "nor818sa", "8": "folga", "9": "dsr", "10": "nor818", "11": "nor818", "12": "nor818", "13": "nor818", "14": "nor818", "15": "sobreaviso", "16": "dsr", "17": "nor818", "18": "nor818", "19": "nor818", "20": "folgabh", "21": "nor818", "22": "folga", "23": "dsr", "24": "nor818sa", "25": "nor818", "26": "nor818", "27": "nor818", "28": "nor818", "29": "dsr", "30": "sobreaviso", "31": "nor818"}}, "criadoEm": "2026-09-15T09:00:00", "criadoPor": "Importação (planilha online)", "status": "Salva"}, {"id": "seed_9_2026", "mes": 9, "ano": 2026, "dados": {"219497": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "feriado", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "79593": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "feriado", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "666": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "844569": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "351236": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "386235": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "178667": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "179851": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "46720": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "41326": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "506": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "480": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "755": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "754": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "263491": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "861614": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "313275": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "204745": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "folga", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "912281": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "folga", "8": "nor818sa", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "nor817sa", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "folga", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "341053": {"1": "ferias", "2": "ferias", "3": "ferias", "4": "ferias", "5": "ferias", "6": "ferias", "7": "ferias", "8": "ferias", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "folga", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "972466": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor817sa", "5": "folga", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "folga", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "260113": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "folga", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "404195": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "folga", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "folga", "22": "nor818sa", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "nor817sa", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818sa"}, "384708": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "384141": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "669": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "168034": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "708122": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "273027": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "273026": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "683825": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "146447": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "442": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "58781": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "49605": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "795481": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "499": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "71946": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "749": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "564347": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "576145": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "nor817sa", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "folga", "15": "nor818sa", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "nor817sa", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "folga", "29": "nor818sa", "30": "nor818"}, "80": {"1": "nor817s", "2": "nor817sa", "3": "nor817sa", "4": "nor817s", "5": "folga", "6": "dsr", "7": "feriado", "8": "nor817sa", "9": "nor817s", "10": "nor817sa", "11": "nor817s", "12": "sobreaviso", "13": "dsr", "14": "nor817sa", "15": "nor817s", "16": "nor817s", "17": "nor817s", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "nor817s", "22": "nor817sa", "23": "nor817s", "24": "nor817sa", "25": "nor817s", "26": "folga", "27": "dsr", "28": "nor817s", "29": "nor817s", "30": "nor817sa"}, "172050": {"1": "nor817s", "2": "nor817sa", "3": "nor817sa", "4": "nor817s", "5": "folga", "6": "dsr", "7": "feriado", "8": "nor817sa", "9": "nor817s", "10": "nor817sa", "11": "nor817s", "12": "sobreaviso", "13": "dsr", "14": "nor817sa", "15": "nor817s", "16": "nor817s", "17": "nor817s", "18": "nor817sa", "19": "dsr", "20": "sobreaviso", "21": "nor817s", "22": "nor817sa", "23": "nor817s", "24": "nor817sa", "25": "nor817s", "26": "folga", "27": "dsr", "28": "nor817s", "29": "nor817s", "30": "nor817sa"}, "340203": {"1": "nor817sa", "2": "folgabh", "3": "nor817sa", "4": "nor817s", "5": "sobreaviso", "6": "dsr", "7": "sobreaviso", "8": "nor817s", "9": "nor817sa", "10": "nor817s", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "nor817s", "15": "nor817s", "16": "nor817sa", "17": "nor817sa", "18": "nor817s", "19": "folga", "20": "dsr", "21": "nor817sa", "22": "nor817s", "23": "nor817sa", "24": "nor817s", "25": "nor817s", "26": "sobreaviso", "27": "dsr", "28": "nor817sa", "29": "nor817s", "30": "nor817s"}, "75": {"1": "nor817sa", "2": "nor817s", "3": "nor817sa", "4": "nor817s", "5": "sobreaviso", "6": "dsr", "7": "sobreaviso", "8": "nor817s", "9": "nor817sa", "10": "nor817s", "11": "nor817sa", "12": "dsr", "13": "sobreaviso", "14": "nor817s", "15": "nor817s", "16": "nor817sa", "17": "nor817sa", "18": "nor817s", "19": "folga", "20": "dsr", "21": "nor817sa", "22": "nor817s", "23": "nor817sa", "24": "nor817s", "25": "nor817s", "26": "sobreaviso", "27": "dsr", "28": "nor817sa", "29": "nor817s", "30": "nor817s"}, "254": {"1": "nor817s", "2": "nor817s", "3": "nor817s", "4": "nor817sa", "5": "dsr", "6": "sobreaviso", "7": "feriado", "8": "nor817s", "9": "nor817s", "10": "nor817s", "11": "nor817sa", "12": "folga", "13": "dsr", "14": "nor817s", "15": "nor817sa", "16": "nor817s", "17": "nor817sa", "18": "nor817s", "19": "sobreaviso", "20": "dsr", "21": "nor817s", "22": "nor817s", "23": "nor817sa", "24": "nor817s", "25": "nor817sa", "26": "dsr", "27": "sobreaviso", "28": "nor817s", "29": "nor817sa", "30": "nor817s"}, "250": {"1": "atestado", "2": "atestado", "3": "atestado", "4": "atestado", "5": "atestado", "6": "atestado", "7": "atestado", "8": "atestado", "9": "atestado", "10": "atestado", "11": "atestado", "12": "atestado", "13": "atestado", "14": "atestado", "15": "atestado", "16": "atestado", "17": "atestado", "18": "atestado", "19": "atestado", "20": "atestado", "21": "atestado", "22": "atestado", "23": "atestado", "24": "atestado", "25": "atestado", "26": "atestado", "27": "atestado", "28": "atestado", "29": "atestado", "30": "atestado"}, "535586": {"1": "nor818", "2": "nor818", "3": "nor818", "4": "nor818", "5": "dsr", "6": "sobreaviso", "7": "feriado", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor818", "12": "folga", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818", "17": "nor818", "18": "nor818", "19": "sobreaviso", "20": "dsr", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor818", "25": "nor818", "26": "folga", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818"}, "541609": {"1": "nor818", "2": "nor818", "3": "nor818", "4": "nor818", "5": "dsr", "6": "sobreaviso", "7": "feriado", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor818", "12": "folga", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818", "17": "nor818", "18": "nor818", "19": "sobreaviso", "20": "dsr", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor818", "25": "nor818", "26": "folga", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818"}, "518271": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor818", "5": "sobreaviso", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818", "10": "nor818", "11": "nor818", "12": "folga", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818", "17": "nor818", "18": "nor818", "19": "dsr", "20": "sobreaviso", "21": "nor818", "22": "nor818", "23": "nor818", "24": "nor818", "25": "nor818sa", "26": "folga", "27": "dsr", "28": "nor818", "29": "nor818sa", "30": "nor818"}, "523467": {"1": "nor818", "2": "nor818sa", "3": "nor818", "4": "nor818", "5": "sobreaviso", "6": "dsr", "7": "sobreaviso", "8": "nor818", "9": "nor818", "10": "nor818", "11": "nor818", "12": "folga", "13": "dsr", "14": "nor818sa", "15": "nor818", "16": "nor818", "17": "nor818", "18": "nor818", "19": "dsr", "20": "sobreaviso", "21": "nor818", "22": "nor818", "23": "nor818", "24": "nor818", "25": "nor818sa", "26": "folga", "27": "dsr", "28": "nor818", "29": "nor818sa", "30": "nor818"}, "525667": {"1": "nor818", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "dsr", "6": "sobreaviso", "7": "feriado", "8": "nor818", "9": "nor818", "10": "nor818", "11": "nor818sa", "12": "folga", "13": "dsr", "14": "nor818", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor818", "19": "sobreaviso", "20": "dsr", "21": "nor818", "22": "nor818", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "folga", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818"}, "520300": {"1": "nor818", "2": "nor818", "3": "nor818sa", "4": "nor818", "5": "dsr", "6": "sobreaviso", "7": "feriado", "8": "nor818", "9": "nor818", "10": "nor818", "11": "nor818sa", "12": "folga", "13": "dsr", "14": "nor818", "15": "nor818", "16": "nor818sa", "17": "nor818", "18": "nor818", "19": "sobreaviso", "20": "dsr", "21": "nor818", "22": "nor818", "23": "nor818", "24": "nor818sa", "25": "nor818", "26": "folga", "27": "dsr", "28": "nor818sa", "29": "nor818", "30": "nor818"}, "530779": {"1": "nor818", "2": "nor818", "3": "nor818", "4": "nor818sa", "5": "folga", "6": "dsr", "7": "feriado", "8": "nor818", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "dsr", "13": "sobreaviso", "14": "nor818", "15": "nor818", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "folga", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818", "24": "nor818", "25": "nor818", "26": "sobreaviso", "27": "dsr", "28": "nor818", "29": "nor818", "30": "nor818"}, "517692": {"1": "nor818", "2": "nor818", "3": "nor818", "4": "nor818sa", "5": "folga", "6": "dsr", "7": "feriado", "8": "nor818", "9": "nor818", "10": "nor818sa", "11": "nor818", "12": "dsr", "13": "sobreaviso", "14": "nor818", "15": "nor818", "16": "nor818", "17": "nor818sa", "18": "nor818", "19": "folga", "20": "dsr", "21": "nor818sa", "22": "nor818", "23": "nor818", "24": "nor818", "25": "nor818", "26": "sobreaviso", "27": "dsr", "28": "nor818", "29": "nor818", "30": "nor818"}, "544498": {"1": "nor818", "2": "nor818", "3": "nor818", "4": "nor818sa", "5": "folga", "6": "folga", "7": "feriado", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor818", "12": "sobreaviso", "13": "dsr", "14": "nor818", "15": "nor818", "16": "nor818", "17": "nor818", "18": "nor818sa", "19": "folga", "20": "dsr", "21": "nor818", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor818", "26": "dsr", "27": "sobreaviso", "28": "nor818", "29": "nor818", "30": "nor818"}, "545122": {"1": "nor818", "2": "nor818", "3": "nor818", "4": "nor818sa", "6": "dsr", "7": "feriado", "8": "nor818", "9": "nor818sa", "10": "nor818", "11": "nor818", "12": "sobreaviso", "13": "dsr", "14": "nor818", "15": "nor818", "16": "nor818", "17": "nor818", "18": "nor818sa", "19": "folga", "20": "dsr", "21": "nor818", "22": "nor818", "23": "nor818sa", "24": "nor818", "25": "nor818", "26": "dsr", "27": "sobreaviso", "28": "nor818", "29": "nor818", "30": "nor818"}}, "criadoEm": "2026-09-15T09:00:00", "criadoPor": "Importação (planilha online)", "status": "Salva"}, {"id": "seed_10_2026", "mes": 10, "ano": 2026, "dados": {"219497": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "sobreaviso", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "79593": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "sobreaviso", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "666": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "sobreaviso", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "844569": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "sobreaviso", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "692082": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "sobreaviso", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "351236": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "386235": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "178667": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "179851": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "46720": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "41326": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "506": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "480": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "755": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "754": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "263491": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "861614": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "313275": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "860364": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "204745": {"1": "nor818sa", "2": "nor818", "3": "nor817sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "folga", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "folga"}, "912281": {"1": "nor818sa", "2": "nor818", "3": "nor817sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "folga", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor818sa", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "nor817sa", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "folga"}, "341053": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "folga", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "972466": {"1": "nor818", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor818sa", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "nor817sa", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor817sa", "17": "folga", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "260113": {"1": "nor818", "2": "nor817sa", "3": "folga", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "folga", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "404195": {"1": "nor818", "2": "nor817sa", "3": "folga", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "folga", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818sa", "29": "nor818", "30": "nor817sa", "31": "dsr"}, "384708": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "384141": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "669": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "915460": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "168034": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "708122": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "273027": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "273026": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "683825": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "146447": {"1": "nor818sa", "2": "nor818", "3": "sobreaviso", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "442": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "folga", "11": "dsr", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "58781": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "49605": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "795481": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "499": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "71946": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "749": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "564347": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "576145": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "1070779": {"1": "nor818sa", "2": "nor818", "3": "nor818sa", "4": "dsr", "5": "nor818sa", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "folga", "13": "nor818sa", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "nor817sa", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor818sa", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "nor817sa"}, "80": {"1": "nor817s", "2": "nor817s", "3": "folga", "4": "dsr", "5": "nor817sa", "6": "nor817s", "7": "nor817s", "8": "nor817s", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "sobreaviso", "13": "folga", "14": "nor817s", "15": "nor817sa", "16": "nor817s", "17": "nor817sa", "18": "dsr", "19": "nor817sa", "20": "nor817s", "21": "nor817s", "22": "nor817sa", "23": "nor817s", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor817s", "28": "nor817sa", "29": "nor817sa", "30": "nor817s", "31": "nor817sa"}, "172050": {"1": "nor817s", "2": "nor817s", "3": "folga", "4": "dsr", "5": "nor817sa", "6": "nor817s", "7": "nor817s", "8": "nor817s", "9": "nor817sa", "10": "dsr", "11": "sobreaviso", "12": "sobreaviso", "13": "folga", "14": "nor817s", "15": "nor817sa", "16": "nor817s", "17": "nor817sa", "18": "dsr", "19": "nor817sa", "20": "nor817s", "21": "nor817s", "22": "nor817sa", "23": "nor817s", "24": "dsr", "25": "sobreaviso", "26": "folga", "27": "nor817s", "28": "nor817sa", "29": "nor817sa", "30": "nor817s", "31": "nor817sa"}, "340203": {"1": "nor817sa", "2": "nor817s", "3": "sobreaviso", "4": "dsr", "5": "nor817s", "6": "nor817s", "7": "nor817sa", "8": "nor817sa", "9": "nor817s", "10": "folga", "11": "dsr", "12": "feriado", "13": "nor817s", "14": "nor817sa", "15": "nor817s", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor817sa", "21": "nor817sa", "22": "nor817s", "23": "nor817s", "24": "nor817sa", "25": "dsr", "26": "nor817sa", "27": "nor817s", "28": "nor817s", "29": "nor817s", "30": "nor817sa", "31": "dsr"}, "75": {"1": "nor817sa", "2": "nor817s", "3": "sobreaviso", "4": "dsr", "5": "nor817s", "6": "nor817s", "7": "nor817sa", "8": "nor817sa", "9": "nor817s", "10": "folga", "11": "dsr", "12": "feriado", "13": "nor817s", "14": "nor817sa", "15": "nor817s", "16": "nor817sa", "17": "dsr", "18": "sobreaviso", "19": "folga", "20": "nor817sa", "21": "nor817sa", "22": "nor817s", "23": "nor817s", "24": "nor817sa", "25": "dsr", "26": "nor817sa", "27": "nor817s", "28": "nor817s", "29": "nor817s", "30": "nor817sa", "31": "dsr"}, "254": {"1": "nor817sa", "2": "nor817sa", "3": "dsr", "4": "sobreaviso", "5": "folga", "6": "nor817sa", "7": "nor817s", "8": "nor817s", "9": "nor817s", "10": "nor817sa", "11": "dsr", "12": "feriado", "13": "nor817sa", "14": "nor817s", "15": "nor817s", "16": "nor817s", "17": "folga", "18": "dsr", "19": "nor817sa", "20": "nor817s", "21": "nor817sa", "22": "nor817s", "23": "nor817sa", "24": "dsr", "25": "sobreaviso", "26": "nor817s", "27": "nor817sa", "28": "nor817s", "29": "nor817sa", "30": "nor817s", "31": "dsr"}, "250": {"1": "atestado", "2": "atestado", "3": "atestado", "4": "atestado", "5": "atestado", "6": "atestado", "7": "atestado", "8": "atestado", "9": "atestado", "10": "atestado", "11": "atestado", "12": "atestado", "13": "atestado", "14": "atestado", "15": "atestado", "16": "atestado", "17": "atestado", "18": "atestado", "19": "atestado", "20": "atestado", "21": "atestado", "22": "atestado", "23": "atestado", "24": "atestado", "25": "atestado", "26": "atestado", "27": "atestado", "28": "atestado", "29": "atestado", "30": "atestado", "31": "atestado"}, "535586": {"1": "nor818", "2": "nor817s", "3": "dsr", "4": "sobreaviso", "5": "nor818", "6": "nor818", "7": "nor818", "8": "nor818", "9": "nor818sa", "10": "folga", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818", "15": "nor818", "16": "nor818", "17": "sobreaviso", "18": "dsr", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor818", "23": "nor818", "24": "folga", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818", "29": "nor818", "30": "nor818", "31": "sobreaviso"}, "541609": {"1": "nor818", "2": "nor817s", "3": "dsr", "4": "sobreaviso", "5": "nor818", "6": "nor818", "7": "nor818", "8": "nor818", "9": "nor818sa", "10": "folga", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818", "15": "nor818", "16": "nor818", "17": "sobreaviso", "18": "dsr", "19": "nor818", "20": "nor818sa", "21": "nor818", "22": "nor818", "23": "nor818", "24": "folga", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818", "29": "nor818", "30": "nor818", "31": "sobreaviso"}, "518271": {"1": "nor818", "2": "nor817s", "3": "dsr", "4": "sobreaviso", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor818", "9": "nor818", "10": "folga", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818", "15": "nor818", "16": "nor818", "17": "sobreaviso", "18": "dsr", "19": "nor818", "20": "nor818", "21": "nor818", "22": "nor818", "23": "nor818sa", "24": "folga", "25": "dsr", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor818", "30": "nor818", "31": "dsr"}, "523467": {"1": "nor818", "2": "nor817s", "3": "dsr", "4": "sobreaviso", "5": "nor818", "6": "nor818sa", "7": "nor818", "8": "nor818", "9": "nor818", "10": "folga", "11": "dsr", "12": "nor818sa", "13": "nor818", "14": "nor818", "15": "nor818", "16": "nor818", "17": "sobreaviso", "18": "dsr", "19": "nor818", "20": "nor818", "21": "nor818", "22": "nor818", "23": "nor818sa", "24": "folga", "25": "dsr", "26": "nor818", "27": "nor818sa", "28": "nor818", "29": "nor818", "30": "nor818", "31": "dsr"}, "525667": {"1": "nor818", "2": "nor817s", "3": "sobreaviso", "4": "dsr", "5": "nor818", "6": "nor818", "7": "nor818", "8": "nor818", "9": "nor818sa", "10": "folga", "11": "dsr", "12": "nor818", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor818", "17": "dsr", "18": "sobreaviso", "19": "nor818", "20": "nor818", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "folga", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "dsr"}, "520300": {"1": "nor818", "2": "nor817s", "3": "sobreaviso", "4": "dsr", "5": "nor818", "6": "nor818", "7": "nor818", "8": "nor818", "9": "nor818sa", "10": "folga", "11": "dsr", "12": "nor818", "13": "nor818", "14": "nor818sa", "15": "nor818", "16": "nor818", "17": "dsr", "18": "sobreaviso", "19": "nor818", "20": "nor818", "21": "nor818", "22": "nor818sa", "23": "nor818", "24": "folga", "25": "dsr", "26": "nor818sa", "27": "nor818", "28": "nor818", "29": "nor818sa", "30": "nor818", "31": "dsr"}, "530779": {"1": "nor818sa", "2": "nor817s", "3": "folga", "4": "dsr", "5": "nor818", "6": "nor818", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "dsr", "11": "sobreaviso", "12": "nor818", "13": "nor818", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "folga", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818", "22": "nor818", "23": "nor818", "24": "dsr", "25": "sobreaviso", "26": "nor818", "27": "nor818", "28": "nor818", "29": "nor818", "30": "nor818sa", "31": "folga"}, "517692": {"1": "nor818sa", "2": "nor817s", "3": "folga", "4": "dsr", "5": "nor818", "6": "nor818", "7": "nor818", "8": "nor818sa", "9": "nor818", "10": "dsr", "11": "sobreaviso", "12": "nor818", "13": "nor818", "14": "nor818", "15": "nor818sa", "16": "nor818", "17": "folga", "18": "dsr", "19": "nor818sa", "20": "nor818", "21": "nor818", "22": "nor818", "23": "nor818", "24": "dsr", "25": "sobreaviso", "26": "nor818", "27": "nor818", "28": "nor818", "29": "nor818", "30": "nor818sa", "31": "folga"}, "544498": {"1": "nor818", "2": "nor818sa", "3": "folga", "4": "dsr", "5": "nor818", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor818", "10": "sobreaviso", "11": "dsr", "12": "nor818", "13": "nor818", "14": "nor818", "15": "nor818", "16": "nor818sa", "17": "folga", "18": "dsr", "19": "nor818", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor818", "24": "sobreaviso", "25": "dsr", "26": "nor818", "27": "nor818", "28": "nor818", "29": "nor818", "30": "nor818sa", "31": "folga"}, "545122": {"1": "nor818", "2": "nor818sa", "3": "folga", "4": "dsr", "5": "nor818", "6": "nor818", "7": "nor818sa", "8": "nor818", "9": "nor818", "10": "sobreaviso", "11": "dsr", "12": "nor818", "13": "nor818", "14": "nor818", "15": "nor818", "16": "nor818sa", "17": "folga", "18": "dsr", "19": "nor818", "20": "nor818", "21": "nor818sa", "22": "nor818", "23": "nor818", "24": "sobreaviso", "25": "dsr", "26": "nor818", "27": "nor818", "28": "nor818", "29": "nor818", "30": "nor818sa", "31": "folga"}}, "criadoEm": "2026-09-15T09:00:00", "criadoPor": "Importação (planilha online)", "status": "Salva"}], "feriados": []};
 
 let charts = {};
 
@@ -2925,7 +3254,768 @@ async function exportFeriasXLSX(){
   URL.revokeObjectURL(url);
 }
 
-/* ---------- UPLOAD / IMPORTAR ---------- */
+/* ============================================================
+   ESCALA DE TRABALHO — módulo completo de montagem/gestão da escala mensal
+   Persistência: localStorage (chave 'proxxima_escala_trabalho_v1')
+   ============================================================ */
+const ET_STORAGE_KEY = 'proxxima_escala_trabalho_v1';
+let ET_DATA = null;      // { colaboradores, tiposEscala, escalas, feriados }
+let ET_ATUAL = null;     // escala em edição (mes, ano, dados: {colabId: {dia: tipoId}}) — não necessariamente salva ainda
+let ET_RESUMO_COLAB_ID = '';
+
+function etDefaultData(){
+  // Dados de exemplo: escala real importada da planilha online (Agosto, Setembro e Outubro/2026)
+  if(typeof ET_SEED_DATA !== 'undefined'){
+    return JSON.parse(JSON.stringify(ET_SEED_DATA));
+  }
+  const tipos = [
+    {id:'t1', sigla:'T1', descricao:'Turno 1 - Manhã', cor:'#2563c9', classe:'trabalho', obs:''},
+    {id:'t2', sigla:'T2', descricao:'Turno 2 - Tarde',  cor:'#1a4fa0', classe:'trabalho', obs:''},
+    {id:'f',  sigla:'F',  descricao:'Folga',            cor:'#8a93a3', classe:'folga',    obs:''},
+    {id:'fer',sigla:'FER',descricao:'Feriado',          cor:'#e0a52c', classe:'feriado',  obs:''},
+    {id:'at', sigla:'AT', descricao:'Atestado',         cor:'#e0293f', classe:'atestado', obs:''},
+    {id:'fc', sigla:'FC', descricao:'Folga compensatória', cor:'#18a95a', classe:'folga', obs:''},
+    {id:'ds', sigla:'DS', descricao:'Descanso',         cor:'#7c3aed', classe:'outro',    obs:''},
+    {id:'pl', sigla:'PL', descricao:'Plantão',          cor:'#e6297c', classe:'plantao',  obs:''},
+  ];
+  return { colaboradores:[], tiposEscala:tipos, escalas:[], feriados:[] };
+}
+function etLoad(){
+  try{
+    const raw = localStorage.getItem(ET_STORAGE_KEY);
+    ET_DATA = raw ? JSON.parse(raw) : etDefaultData();
+    if(!ET_DATA.colaboradores) ET_DATA.colaboradores=[];
+    if(!ET_DATA.tiposEscala || !ET_DATA.tiposEscala.length) ET_DATA.tiposEscala = etDefaultData().tiposEscala;
+    if(!ET_DATA.escalas) ET_DATA.escalas=[];
+    if(!ET_DATA.feriados) ET_DATA.feriados=[];
+  }catch(e){
+    ET_DATA = etDefaultData();
+  }
+}
+function etSave(){
+  try{ localStorage.setItem(ET_STORAGE_KEY, JSON.stringify(ET_DATA)); }catch(e){ console.warn('Não foi possível salvar a escala localmente', e); }
+}
+function etUid(){ return 'et_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function etTipoById(id){ return ET_DATA.tiposEscala.find(t=>t.id===id); }
+function etColabById(id){ return ET_DATA.colaboradores.find(c=>c.id===id); }
+function etDiasNoMes(mes, ano){ return new Date(ano, mes, 0).getDate(); }
+function etEhFimDeSemana(ano, mes, dia){ const dow = new Date(ano, mes-1, dia).getDay(); return dow===0||dow===6; }
+function etFeriadoNoDia(ano, mes, dia){
+  const iso = `${ano}-${String(mes).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+  return ET_DATA.feriados.find(f=>f.data===iso);
+}
+
+/* ---------- NAVEGAÇÃO ENTRE SUB-ABAS ---------- */
+function etGoTab(nome){
+  document.querySelectorAll('.et-subtab').forEach(b=>b.classList.toggle('active', b.dataset.etpanel===nome));
+  document.querySelectorAll('.et-panel').forEach(p=>p.classList.remove('active'));
+  const map = {matriz:'etPanelMatriz', colaboradores:'etPanelColaboradores', tipos:'etPanelTipos', feriados:'etPanelFeriados', historico:'etPanelHistorico'};
+  document.getElementById(map[nome]).classList.add('active');
+  if(nome==='colaboradores') etRenderColaboradoresTable();
+  if(nome==='tipos') etRenderTipos();
+  if(nome==='feriados') etRenderFeriados();
+  if(nome==='historico') etRenderHistorico();
+  if(nome==='matriz') etRenderMatrix();
+}
+
+/* ---------- INICIALIZAÇÃO DA PÁGINA ---------- */
+function etFillMesAno(){
+  const mesSel = document.getElementById('etMes');
+  const anoSel = document.getElementById('etAno');
+  if(mesSel.options.length===0){
+    mesSel.innerHTML = MESES_PT.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+  }
+  if(anoSel.options.length===0){
+    const hoje = new Date();
+    const anos=[];
+    for(let a=hoje.getFullYear()-1; a<=hoje.getFullYear()+2; a++) anos.push(a);
+    anoSel.innerHTML = anos.map(a=>`<option value="${a}">${a}</option>`).join('');
+    mesSel.value = hoje.getMonth()+1;
+    anoSel.value = hoje.getFullYear();
+  }
+}
+function etPageInit(){
+  if(!ET_DATA) etLoad();
+  etFillMesAno();
+  etFillColabSelectsDeFiltro();
+  etCarregarOuCriarEscalaAtual();
+  etGoTab('matriz');
+}
+document.getElementById('etMes')?.addEventListener('change', ()=>{ etCarregarOuCriarEscalaAtual(); etRenderMatrix(); });
+document.getElementById('etAno')?.addEventListener('change', ()=>{ etCarregarOuCriarEscalaAtual(); etRenderMatrix(); });
+['etBusca','etFiltroEquipe','etFiltroSupervisor','etFiltroFuncao','etFiltroStatus'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input', etRenderMatrix);
+  document.getElementById(id)?.addEventListener('change', etRenderMatrix);
+});
+document.getElementById('etResumoColab')?.addEventListener('change', e=>{ ET_RESUMO_COLAB_ID = e.target.value; etRenderResumoIndividual(); });
+
+/* Carrega do histórico a escala do mês/ano selecionado, ou cria uma estrutura em memória (ainda não salva) */
+function etCarregarOuCriarEscalaAtual(){
+  const mes = parseInt(document.getElementById('etMes').value);
+  const ano = parseInt(document.getElementById('etAno').value);
+  const existente = ET_DATA.escalas.find(e=>e.mes===mes && e.ano===ano);
+  if(existente){
+    ET_ATUAL = JSON.parse(JSON.stringify(existente));
+  } else {
+    ET_ATUAL = { id:null, mes, ano, dados:{}, criadoEm:null, criadoPor:null, status:'Rascunho' };
+  }
+}
+function etNovaEscala(){
+  const mes = parseInt(document.getElementById('etMes').value);
+  const ano = parseInt(document.getElementById('etAno').value);
+  const existente = ET_DATA.escalas.find(e=>e.mes===mes && e.ano===ano);
+  if(existente){
+    alert(`Já existe uma escala salva para ${MESES_PT[mes-1]}/${ano}. Ela foi carregada para edição.`);
+    ET_ATUAL = JSON.parse(JSON.stringify(existente));
+  } else {
+    ET_ATUAL = { id:null, mes, ano, dados:{}, criadoEm:null, criadoPor:null, status:'Rascunho' };
+  }
+  etRenderMatrix();
+}
+function etSalvarEscala(){
+  if(!ET_ATUAL) return;
+  const idx = ET_DATA.escalas.findIndex(e=>e.mes===ET_ATUAL.mes && e.ano===ET_ATUAL.ano);
+  ET_ATUAL.status = 'Salva';
+  if(idx>=0){
+    ET_ATUAL.id = ET_DATA.escalas[idx].id;
+    ET_ATUAL.criadoEm = ET_DATA.escalas[idx].criadoEm;
+    ET_ATUAL.criadoPor = ET_DATA.escalas[idx].criadoPor;
+    ET_DATA.escalas[idx] = JSON.parse(JSON.stringify(ET_ATUAL));
+  } else {
+    ET_ATUAL.id = etUid();
+    ET_ATUAL.criadoEm = new Date().toISOString();
+    ET_ATUAL.criadoPor = (CURRENT_USER && CURRENT_USER.role==='master') ? 'Master' : 'Sistema';
+    ET_DATA.escalas.push(JSON.parse(JSON.stringify(ET_ATUAL)));
+  }
+  etSave();
+  alert(`Escala de ${MESES_PT[ET_ATUAL.mes-1]}/${ET_ATUAL.ano} salva com sucesso.`);
+  etRenderMatrix();
+}
+
+/* ---------- FILTROS DA MATRIZ ---------- */
+function etFillColabSelectsDeFiltro(){
+  const equipes = uniqueSorted(ET_DATA.colaboradores.map(c=>c.equipe));
+  const sups = uniqueSorted(ET_DATA.colaboradores.map(c=>c.supervisor));
+  const funcoes = uniqueSorted(ET_DATA.colaboradores.map(c=>c.funcao));
+  populateSelect(document.getElementById('etFiltroEquipe'), equipes, 'Todas');
+  populateSelect(document.getElementById('etFiltroSupervisor'), sups, 'Todos');
+  populateSelect(document.getElementById('etFiltroFuncao'), funcoes, 'Todas');
+  populateSelect(document.getElementById('etResumoColab'), ET_DATA.colaboradores.map(c=>c.nome), 'Selecione');
+  const tipoSel = document.getElementById('etColabTipoPadrao');
+  if(tipoSel) tipoSel.innerHTML = ET_DATA.tiposEscala.map(t=>`<option value="${t.id}">${t.sigla} — ${t.descricao}</option>`).join('');
+}
+function etColaboradoresFiltrados(){
+  const busca = (document.getElementById('etBusca').value||'').toLowerCase().trim();
+  const equipe = document.getElementById('etFiltroEquipe').value;
+  const sup = document.getElementById('etFiltroSupervisor').value;
+  const funcao = document.getElementById('etFiltroFuncao').value;
+  const status = document.getElementById('etFiltroStatus').value;
+  return ET_DATA.colaboradores.filter(c=>{
+    if(busca && !c.nome.toLowerCase().includes(busca)) return false;
+    if(equipe && c.equipe!==equipe) return false;
+    if(sup && c.supervisor!==sup) return false;
+    if(funcao && c.funcao!==funcao) return false;
+    if(status && c.status!==status) return false;
+    return true;
+  });
+}
+
+/* ---------- MATRIZ ---------- */
+function etRenderMatrix(){
+  if(!ET_ATUAL) return;
+  const { mes, ano } = ET_ATUAL;
+  const diasNoMes = etDiasNoMes(mes, ano);
+  document.getElementById('etMatrixTitle').textContent = `Escala — ${MESES_PT[mes-1].toUpperCase()}/${ano} (${ET_ATUAL.status})`;
+
+  const colabs = etColaboradoresFiltrados();
+  const dowAbbr = ['D','S','T','Q','Q','S','S'];
+
+  let thead = `<thead><tr><th class="et-th-nome">Colaborador</th>`;
+  for(let d=1; d<=diasNoMes; d++){
+    const fds = etEhFimDeSemana(ano, mes, d);
+    const fer = etFeriadoNoDia(ano, mes, d);
+    const dow = new Date(ano, mes-1, d).getDay();
+    thead += `<th class="${fer?'et-feriado':(fds?'et-weekend':'')}" title="${fer?fer.nome:''}">${String(d).padStart(2,'0')}<br>${dowAbbr[dow]}</th>`;
+  }
+  thead += `</tr></thead>`;
+
+  let tbody = `<tbody>`;
+  if(!colabs.length){
+    tbody += `<tr><td class="et-td-nome" colspan="${diasNoMes+1}" style="text-align:center;color:var(--cinza-600);">Nenhum colaborador encontrado para o filtro selecionado.</td></tr>`;
+  }
+  colabs.forEach(c=>{
+    tbody += `<tr><td class="et-td-nome">${c.nome}${c.status==='inativo'?' <span class="badge semprot">inativo</span>':''}</td>`;
+    for(let d=1; d<=diasNoMes; d++){
+      const tipoId = (ET_ATUAL.dados[c.id]||{})[d];
+      const tipo = tipoId ? etTipoById(tipoId) : null;
+      const fds = etEhFimDeSemana(ano, mes, d);
+      const fer = etFeriadoNoDia(ano, mes, d);
+      const classes = ['et-cell'];
+      if(!tipo) classes.push('empty');
+      if(fds) classes.push('et-weekend-col');
+      if(fer) classes.push('et-feriado-col');
+      const style = tipo ? `background:${tipo.cor};` : '';
+      tbody += `<td class="${classes.join(' ')}" style="${style}" onclick="etAbrirPicker(event,'${c.id}',${d})">${tipo?tipo.sigla:''}</td>`;
+    }
+    tbody += `</tr>`;
+  });
+  tbody += `</tbody>`;
+
+  document.getElementById('etMatrixTable').innerHTML = thead + tbody;
+
+  // Legenda
+  document.getElementById('etLegenda').innerHTML = ET_DATA.tiposEscala.map(t=>`
+    <div class="esc-chip"><span class="esc-dot" style="background:${t.cor}"></span>${t.sigla} — ${t.descricao}</div>
+  `).join('') + `<div class="esc-chip"><span style="width:10px;height:10px;border-radius:3px;box-shadow:inset 0 0 0 2px var(--rosa-600);display:inline-block;"></span> Feriado</div>`;
+
+  etRenderResumoGeral(colabs, diasNoMes);
+  etRenderResumoIndividual();
+  etRenderAlertas(colabs, diasNoMes);
+}
+
+/* ---------- SELETOR DE CÉLULA (picker) ---------- */
+function etAbrirPicker(ev, colabId, dia){
+  ev.stopPropagation();
+  const picker = document.getElementById('etPicker');
+  const itens = ET_DATA.tiposEscala.map(t=>
+    `<div class="et-picker-item" onclick="etSetCell('${colabId}',${dia},'${t.id}')"><span class="et-picker-dot" style="background:${t.cor}"></span>${t.sigla} — ${t.descricao}</div>`
+  ).join('');
+  picker.innerHTML = itens + `<div class="et-picker-item et-picker-clear" onclick="etSetCell('${colabId}',${dia},null)">✕ Limpar célula</div>`;
+  const rect = ev.target.getBoundingClientRect();
+  let left = rect.left;
+  if(left + 200 > window.innerWidth) left = window.innerWidth - 210;
+  picker.style.left = left+'px';
+  picker.style.top = (rect.bottom+6)+'px';
+  picker.classList.add('show');
+}
+document.addEventListener('click', ()=>{ document.getElementById('etPicker')?.classList.remove('show'); });
+
+function etSetCell(colabId, dia, tipoId){
+  if(!ET_ATUAL.dados[colabId]) ET_ATUAL.dados[colabId] = {};
+  if(tipoId) ET_ATUAL.dados[colabId][dia] = tipoId;
+  else delete ET_ATUAL.dados[colabId][dia];
+  document.getElementById('etPicker').classList.remove('show');
+  etRenderMatrix();
+}
+
+/* ---------- RESUMOS ---------- */
+function etRenderResumoGeral(colabs, diasNoMes){
+  let folgas=0, plantoes=0, trabalhados=0, semEscala=0;
+  colabs.forEach(c=>{
+    const linha = ET_ATUAL.dados[c.id] || {};
+    const preenchidos = Object.keys(linha).length;
+    if(preenchidos===0) semEscala++;
+    for(let d=1; d<=diasNoMes; d++){
+      const tipo = linha[d] ? etTipoById(linha[d]) : null;
+      if(!tipo) continue;
+      if(tipo.classe==='folga') folgas++;
+      else if(tipo.classe==='plantao') plantoes++;
+      else if(tipo.classe==='trabalho') trabalhados++;
+    }
+  });
+  document.getElementById('etResumoGeral').innerHTML = `
+    <div class="info-chip">Colaboradores: <b>${colabs.length}</b></div>
+    <div class="info-chip">Dias do mês: <b>${diasNoMes}</b></div>
+    <div class="info-chip">Total de folgas: <b>${folgas}</b></div>
+    <div class="info-chip">Total de plantões: <b>${plantoes}</b></div>
+    <div class="info-chip">Total de dias trabalhados: <b>${trabalhados}</b></div>
+    <div class="info-chip">Sem nenhum lançamento: <b>${semEscala}</b></div>
+  `;
+}
+function etRenderResumoIndividual(){
+  const el = document.getElementById('etResumoIndividual');
+  const nome = document.getElementById('etResumoColab').value;
+  if(!nome){ el.innerHTML = '<div class="empty-note">Selecione um colaborador.</div>'; return; }
+  const c = ET_DATA.colaboradores.find(x=>x.nome===nome);
+  if(!c){ el.innerHTML = '<div class="empty-note">Colaborador não encontrado.</div>'; return; }
+  const linha = (ET_ATUAL && ET_ATUAL.dados[c.id]) || {};
+  const diasNoMes = etDiasNoMes(ET_ATUAL.mes, ET_ATUAL.ano);
+  let trabalhados=0, folgas=0, plantoes=0, feriados=0, atestados=0;
+  for(let d=1; d<=diasNoMes; d++){
+    const tipo = linha[d] ? etTipoById(linha[d]) : null;
+    if(!tipo) continue;
+    if(tipo.classe==='trabalho') trabalhados++;
+    else if(tipo.classe==='folga') folgas++;
+    else if(tipo.classe==='plantao') plantoes++;
+    else if(tipo.classe==='feriado') feriados++;
+    else if(tipo.classe==='atestado') atestados++;
+  }
+  el.innerHTML = `
+    <div class="info-chip">Dias trabalhados: <b>${trabalhados}</b></div>
+    <div class="info-chip">Folgas: <b>${folgas}</b></div>
+    <div class="info-chip">Plantões: <b>${plantoes}</b></div>
+    <div class="info-chip">Feriados: <b>${feriados}</b></div>
+    <div class="info-chip">Atestados: <b>${atestados}</b></div>
+  `;
+}
+
+/* ---------- VALIDAÇÕES / ALERTAS ---------- */
+function etRenderAlertas(colabs, diasNoMes){
+  const alertas = [];
+  colabs.forEach(c=>{
+    const linha = ET_ATUAL.dados[c.id] || {};
+    const preenchidos = Object.keys(linha).length;
+    if(preenchidos===0){
+      alertas.push(`${c.nome} está sem nenhum lançamento de escala em ${MESES_PT[ET_ATUAL.mes-1]}/${ET_ATUAL.ano}.`);
+    } else if(preenchidos < diasNoMes){
+      const faltando = [];
+      for(let d=1; d<=diasNoMes; d++) if(!linha[d]) faltando.push(d);
+      if(faltando.length) alertas.push(`${c.nome} está sem escala em ${faltando.length} dia(s) (ex: dia ${faltando[0]}).`);
+    }
+    if(c.status==='inativo' && preenchidos>0){
+      alertas.push(`${c.nome} está INATIVO mas possui lançamentos nesta escala.`);
+    }
+    // dias consecutivos de trabalho
+    let consecutivos=0, maxConsecutivos=0;
+    for(let d=1; d<=diasNoMes; d++){
+      const tipo = linha[d] ? etTipoById(linha[d]) : null;
+      const trabalha = tipo && (tipo.classe==='trabalho' || tipo.classe==='plantao');
+      if(trabalha){ consecutivos++; maxConsecutivos=Math.max(maxConsecutivos,consecutivos); }
+      else consecutivos=0;
+    }
+    if(maxConsecutivos>=7){
+      alertas.push(`${c.nome} possui ${maxConsecutivos} dias consecutivos de trabalho.`);
+    }
+  });
+  const existente = ET_DATA.escalas.find(e=>e.mes===ET_ATUAL.mes && e.ano===ET_ATUAL.ano);
+  if(existente && ET_ATUAL.status==='Rascunho'){
+    alertas.push(`Já existe uma escala salva para ${MESES_PT[ET_ATUAL.mes-1]}/${ET_ATUAL.ano} — ao salvar, ela será substituída.`);
+  }
+
+  const el = document.getElementById('etAlertas');
+  if(!alertas.length){ el.innerHTML=''; return; }
+  el.innerHTML = `<div class="alert-box et-alert-list"><h4>⚠️ Pontos de atenção (${alertas.length})</h4>` +
+    alertas.slice(0,12).map(a=>`<div class="alert-row"><span>${a}</span></div>`).join('') +
+    (alertas.length>12?`<div class="alert-row"><span>+ ${alertas.length-12} outra(s) ocorrência(s)</span></div>`:'') +
+    `</div>`;
+}
+
+/* ---------- COLABORADORES (CRUD) ---------- */
+function etSalvarColaborador(){
+  const editId = document.getElementById('etColabEditId').value;
+  const nome = document.getElementById('etColabNome').value.trim();
+  const statusEl = document.getElementById('etColabStatusMsg');
+  statusEl.className='upload-status'; statusEl.style.display='none';
+  if(!nome){ statusEl.className='upload-status err'; statusEl.textContent='Informe o nome do colaborador.'; statusEl.style.display='block'; return; }
+
+  const dadosColab = {
+    nome,
+    matricula: document.getElementById('etColabMatricula').value.trim(),
+    funcao: document.getElementById('etColabFuncao').value.trim(),
+    equipe: document.getElementById('etColabEquipe').value.trim(),
+    supervisor: document.getElementById('etColabSupervisor').value.trim(),
+    tipoPadrao: document.getElementById('etColabTipoPadrao').value,
+    status: document.getElementById('etColabStatus').value,
+  };
+
+  if(editId){
+    const c = etColabById(editId);
+    Object.assign(c, dadosColab);
+    statusEl.className='upload-status ok'; statusEl.textContent = `Colaborador ${nome} atualizado.`;
+  } else {
+    ET_DATA.colaboradores.push({ id: etUid(), ...dadosColab });
+    statusEl.className='upload-status ok'; statusEl.textContent = `Colaborador ${nome} cadastrado.`;
+  }
+  statusEl.style.display='block';
+  etSave();
+  etCancelarEdicaoColaborador();
+  etFillColabSelectsDeFiltro();
+  etRenderColaboradoresTable();
+}
+function etEditarColaborador(id){
+  const c = etColabById(id);
+  if(!c) return;
+  document.getElementById('etColabEditId').value = c.id;
+  document.getElementById('etColabNome').value = c.nome;
+  document.getElementById('etColabMatricula').value = c.matricula||'';
+  document.getElementById('etColabFuncao').value = c.funcao||'';
+  document.getElementById('etColabEquipe').value = c.equipe||'';
+  document.getElementById('etColabSupervisor').value = c.supervisor||'';
+  document.getElementById('etColabTipoPadrao').value = c.tipoPadrao||'';
+  document.getElementById('etColabStatus').value = c.status||'ativo';
+  document.getElementById('etColabFormTitle').textContent = `Editando: ${c.nome}`;
+  document.getElementById('etColabCancelBtn').style.display='inline-flex';
+}
+function etCancelarEdicaoColaborador(){
+  document.getElementById('etColabEditId').value = '';
+  document.getElementById('etColabNome').value = '';
+  document.getElementById('etColabMatricula').value = '';
+  document.getElementById('etColabFuncao').value = '';
+  document.getElementById('etColabEquipe').value = '';
+  document.getElementById('etColabSupervisor').value = '';
+  document.getElementById('etColabStatus').value = 'ativo';
+  document.getElementById('etColabFormTitle').textContent = 'Adicionar colaborador';
+  document.getElementById('etColabCancelBtn').style.display='none';
+}
+function etExcluirColaborador(id){
+  if(!confirm('Remover este colaborador do cadastro? Os lançamentos já salvos em escalas anteriores não serão apagados.')) return;
+  ET_DATA.colaboradores = ET_DATA.colaboradores.filter(c=>c.id!==id);
+  etSave();
+  etFillColabSelectsDeFiltro();
+  etRenderColaboradoresTable();
+}
+function etToggleStatusColaborador(id){
+  const c = etColabById(id);
+  c.status = c.status==='ativo' ? 'inativo' : 'ativo';
+  etSave();
+  etRenderColaboradoresTable();
+}
+function etRenderColaboradoresTable(){
+  const body = document.getElementById('etColabBody');
+  if(!ET_DATA.colaboradores.length){ body.innerHTML = `<tr><td colspan="8" class="empty-note">Nenhum colaborador cadastrado ainda.</td></tr>`; return; }
+  body.innerHTML = [...ET_DATA.colaboradores].sort((a,b)=>a.nome.localeCompare(b.nome,'pt')).map(c=>{
+    const tipo = etTipoById(c.tipoPadrao);
+    return `<tr>
+      <td>${c.nome}</td>
+      <td>${c.matricula||'-'}</td>
+      <td>${c.funcao||'-'}</td>
+      <td>${c.equipe||'-'}</td>
+      <td>${c.supervisor||'-'}</td>
+      <td>${tipo?tipo.sigla:'-'}</td>
+      <td><span class="badge ${c.status==='ativo'?'comprot':'semprot'}">${c.status}</span></td>
+      <td style="display:flex;gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="etEditarColaborador('${c.id}')">Editar</button>
+        <button class="btn btn-outline btn-sm" onclick="etToggleStatusColaborador('${c.id}')">${c.status==='ativo'?'Inativar':'Ativar'}</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--critico);border-color:#fbd2d8;" onclick="etExcluirColaborador('${c.id}')">Excluir</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+document.getElementById('etColabFile')?.addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('etImportStatus');
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const wb = XLSX.read(ev.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+      let count=0;
+      rows.forEach(r=>{
+        const nome = (r['Nome']||r['NOME']||r['Colaborador']||'').toString().trim();
+        if(!nome) return;
+        ET_DATA.colaboradores.push({
+          id: etUid(), nome,
+          matricula: (r['Matrícula']||r['Matricula']||'').toString().trim(),
+          funcao: (r['Função']||r['Funcao']||'').toString().trim(),
+          equipe: (r['Equipe']||r['Setor']||'').toString().trim(),
+          supervisor: (r['Supervisor']||'').toString().trim(),
+          tipoPadrao: ET_DATA.tiposEscala[0]?.id||'',
+          status:'ativo'
+        });
+        count++;
+      });
+      etSave();
+      etFillColabSelectsDeFiltro();
+      etRenderColaboradoresTable();
+      statusEl.className='upload-status ok'; statusEl.textContent = `${count} colaborador(es) importado(s) com sucesso.`; statusEl.style.display='block';
+    }catch(err){
+      statusEl.className='upload-status err'; statusEl.textContent = 'Não foi possível processar o arquivo. Verifique se é um Excel válido com a coluna "Nome".'; statusEl.style.display='block';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+/* ---------- TIPOS DE ESCALA (CRUD) ---------- */
+function etSalvarTipo(){
+  const editId = document.getElementById('etTipoEditId').value;
+  const sigla = document.getElementById('etTipoSigla').value.trim().toUpperCase();
+  const statusEl = document.getElementById('etTipoStatusMsg');
+  statusEl.className='upload-status'; statusEl.style.display='none';
+  if(!sigla){ statusEl.className='upload-status err'; statusEl.textContent='Informe a sigla do tipo de escala.'; statusEl.style.display='block'; return; }
+
+  const dadosTipo = {
+    sigla,
+    cor: document.getElementById('etTipoCor').value,
+    descricao: document.getElementById('etTipoDescricao').value.trim(),
+    classe: document.getElementById('etTipoClasse').value,
+    obs: document.getElementById('etTipoObs').value.trim(),
+  };
+  if(editId){
+    Object.assign(etTipoById(editId), dadosTipo);
+    statusEl.className='upload-status ok'; statusEl.textContent = `Tipo ${sigla} atualizado.`;
+  } else {
+    ET_DATA.tiposEscala.push({ id: etUid(), ...dadosTipo });
+    statusEl.className='upload-status ok'; statusEl.textContent = `Tipo ${sigla} cadastrado.`;
+  }
+  statusEl.style.display='block';
+  etSave();
+  etCancelarEdicaoTipo();
+  etRenderTipos();
+  etFillColabSelectsDeFiltro();
+}
+function etEditarTipo(id){
+  const t = etTipoById(id);
+  if(!t) return;
+  document.getElementById('etTipoEditId').value = t.id;
+  document.getElementById('etTipoSigla').value = t.sigla;
+  document.getElementById('etTipoCor').value = t.cor;
+  document.getElementById('etTipoDescricao').value = t.descricao||'';
+  document.getElementById('etTipoClasse').value = t.classe;
+  document.getElementById('etTipoObs').value = t.obs||'';
+  document.getElementById('etTipoFormTitle').textContent = `Editando: ${t.sigla}`;
+  document.getElementById('etTipoCancelBtn').style.display='inline-flex';
+}
+function etCancelarEdicaoTipo(){
+  document.getElementById('etTipoEditId').value = '';
+  document.getElementById('etTipoSigla').value = '';
+  document.getElementById('etTipoDescricao').value = '';
+  document.getElementById('etTipoObs').value = '';
+  document.getElementById('etTipoFormTitle').textContent = 'Novo tipo de escala';
+  document.getElementById('etTipoCancelBtn').style.display='none';
+}
+function etExcluirTipo(id){
+  if(!confirm('Excluir este tipo de escala? Células já preenchidas com ele deixarão de mostrar cor/sigla.')) return;
+  ET_DATA.tiposEscala = ET_DATA.tiposEscala.filter(t=>t.id!==id);
+  etSave();
+  etRenderTipos();
+}
+function etRenderTipos(){
+  const el = document.getElementById('etTiposList');
+  if(!ET_DATA.tiposEscala.length){ el.innerHTML = '<div class="empty-note">Nenhum tipo cadastrado.</div>'; return; }
+  el.innerHTML = ET_DATA.tiposEscala.map(t=>`
+    <div class="et-tipo-card">
+      <div class="et-tipo-swatch" style="background:${t.cor}">${t.sigla}</div>
+      <div style="flex:1;">
+        <b>${t.descricao||'(sem descrição)'}</b>
+        <div style="font-size:11.5px;color:var(--cinza-600);">Classificação: ${t.classe}${t.obs?' · '+t.obs:''}</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="etEditarTipo('${t.id}')">Editar</button>
+      <button class="btn btn-outline btn-sm" style="color:var(--critico);border-color:#fbd2d8;" onclick="etExcluirTipo('${t.id}')">Excluir</button>
+    </div>
+  `).join('');
+}
+
+/* ---------- FERIADOS (CRUD) ---------- */
+function etSalvarFeriado(){
+  const data = document.getElementById('etFeriadoData').value;
+  const nome = document.getElementById('etFeriadoNome').value.trim();
+  const tipo = document.getElementById('etFeriadoTipo').value;
+  const statusEl = document.getElementById('etFeriadoStatusMsg');
+  statusEl.className='upload-status'; statusEl.style.display='none';
+  if(!data || !nome){ statusEl.className='upload-status err'; statusEl.textContent='Informe a data e o nome do feriado.'; statusEl.style.display='block'; return; }
+  ET_DATA.feriados.push({ id: etUid(), data, nome, tipo });
+  etSave();
+  document.getElementById('etFeriadoNome').value=''; document.getElementById('etFeriadoData').value='';
+  statusEl.className='upload-status ok'; statusEl.textContent = `Feriado "${nome}" cadastrado.`; statusEl.style.display='block';
+  etRenderFeriados();
+  etRenderMatrix();
+}
+function etExcluirFeriado(id){
+  ET_DATA.feriados = ET_DATA.feriados.filter(f=>f.id!==id);
+  etSave();
+  etRenderFeriados();
+  etRenderMatrix();
+}
+function etRenderFeriados(){
+  const el = document.getElementById('etFeriadosList');
+  const ordenados = [...ET_DATA.feriados].sort((a,b)=>a.data.localeCompare(b.data));
+  if(!ordenados.length){ el.innerHTML = '<div class="empty-note">Nenhum feriado cadastrado.</div>'; return; }
+  el.innerHTML = ordenados.map(f=>`
+    <div class="rank-row" style="padding:8px 4px;">
+      <div class="rank-name"><b style="font-size:12.5px;">${f.nome}</b><span>${fmtBR(f.data)} · ${f.tipo}</span></div>
+      <button class="btn btn-outline btn-sm" style="color:var(--critico);border-color:#fbd2d8;" onclick="etExcluirFeriado('${f.id}')">Remover</button>
+    </div>`).join('');
+}
+
+/* ---------- DUPLICAR ESCALA ---------- */
+function etAbrirDuplicar(){
+  const sel = document.getElementById('etDupOrigem');
+  const outras = ET_DATA.escalas.filter(e=> !(e.mes===ET_ATUAL.mes && e.ano===ET_ATUAL.ano));
+  if(!outras.length){ alert('Não há nenhuma outra escala salva para copiar ainda.'); return; }
+  sel.innerHTML = outras.map(e=>`<option value="${e.id}">${MESES_PT[e.mes-1]}/${e.ano}</option>`).join('');
+  document.getElementById('etDupDestino').value = `${MESES_PT[ET_ATUAL.mes-1]}/${ET_ATUAL.ano}`;
+  document.getElementById('etDupModalBg').classList.add('show');
+}
+function etConfirmarDuplicar(){
+  const origemId = document.getElementById('etDupOrigem').value;
+  const origem = ET_DATA.escalas.find(e=>e.id===origemId);
+  if(!origem) return;
+  const diasDestino = etDiasNoMes(ET_ATUAL.mes, ET_ATUAL.ano);
+  const novosDados = {};
+  Object.entries(origem.dados).forEach(([colabId, porDia])=>{
+    novosDados[colabId] = {};
+    Object.entries(porDia).forEach(([dia, tipoId])=>{
+      if(parseInt(dia) <= diasDestino) novosDados[colabId][dia] = tipoId;
+    });
+  });
+  ET_ATUAL.dados = novosDados;
+  ET_ATUAL.status = 'Rascunho';
+  document.getElementById('etDupModalBg').classList.remove('show');
+  etRenderMatrix();
+  alert('Escala copiada para a tela de edição. Ajuste o que for necessário e clique em "Salvar".');
+}
+
+/* ---------- HISTÓRICO ---------- */
+function etRenderHistorico(){
+  const body = document.getElementById('etHistoricoBody');
+  const ordenadas = [...ET_DATA.escalas].sort((a,b)=> (b.ano-a.ano) || (b.mes-a.mes));
+  if(!ordenadas.length){ body.innerHTML = `<tr><td colspan="6" class="empty-note">Nenhuma escala salva ainda.</td></tr>`; return; }
+  body.innerHTML = ordenadas.map(e=>{
+    const nColabs = Object.keys(e.dados||{}).length;
+    const criadoEm = e.criadoEm ? new Date(e.criadoEm).toLocaleDateString('pt-BR') : '-';
+    return `<tr>
+      <td>${MESES_PT[e.mes-1]}/${e.ano}</td>
+      <td>${criadoEm}</td>
+      <td>${e.criadoPor||'-'}</td>
+      <td><span class="badge comprot">${e.status}</span></td>
+      <td>${nColabs}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="etAbrirHistoricoEscala(${e.mes},${e.ano})">Visualizar/Editar</button>
+        <button class="btn btn-outline btn-sm" onclick="etExcluirEscalaHistorico('${e.id}')" style="color:var(--critico);border-color:#fbd2d8;">Excluir</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function etAbrirHistoricoEscala(mes, ano){
+  document.getElementById('etMes').value = mes;
+  document.getElementById('etAno').value = ano;
+  etCarregarOuCriarEscalaAtual();
+  etGoTab('matriz');
+}
+function etExcluirEscalaHistorico(id){
+  if(!confirm('Excluir esta escala salva? Essa ação não pode ser desfeita.')) return;
+  ET_DATA.escalas = ET_DATA.escalas.filter(e=>e.id!==id);
+  etSave();
+  etRenderHistorico();
+}
+
+/* ---------- EXPORTAÇÃO ---------- */
+function etNomeArquivo(ext){
+  return `ESCALA_TRABALHO_${String(ET_ATUAL.mes).padStart(2,'0')}_${ET_ATUAL.ano}.${ext}`;
+}
+async function etExportarExcel(){
+  const colabs = etColaboradoresFiltrados();
+  const diasNoMes = etDiasNoMes(ET_ATUAL.mes, ET_ATUAL.ano);
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('ESCALA');
+
+  ws.getColumn(1).width = 30;
+  for(let d=1; d<=diasNoMes; d++) ws.getColumn(d+1).width = 5;
+
+  ws.mergeCells(1,1,1,diasNoMes+1);
+  const titulo = ws.getCell(1,1);
+  titulo.value = `ESCALA DE TRABALHO — ${MESES_PT[ET_ATUAL.mes-1].toUpperCase()}/${ET_ATUAL.ano}`;
+  titulo.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF0B2C5C'} };
+  titulo.font = { bold:true, color:{argb:'FFFFFFFF'}, size:12 };
+  titulo.alignment = { horizontal:'center', vertical:'middle' };
+  ws.getRow(1).height = 22;
+
+  const headerRow = ws.getRow(2);
+  headerRow.getCell(1).value = 'Colaborador';
+  for(let d=1; d<=diasNoMes; d++) headerRow.getCell(d+1).value = d;
+  headerRow.eachCell(cell=>{
+    cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF3E4095'} };
+    cell.font = { bold:true, color:{argb:'FFFFFFFF'}, size:9 };
+    cell.alignment = { horizontal:'center', vertical:'middle' };
+    cell.border = { top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'} };
+  });
+
+  colabs.forEach(c=>{
+    const row = ws.addRow([c.nome]);
+    row.getCell(1).font = { bold:true, size:9 };
+    row.getCell(1).alignment = { horizontal:'left', vertical:'center' };
+    for(let d=1; d<=diasNoMes; d++){
+      const tipoId = (ET_ATUAL.dados[c.id]||{})[d];
+      const tipo = tipoId ? etTipoById(tipoId) : null;
+      const cell = row.getCell(d+1);
+      cell.value = tipo ? tipo.sigla : '';
+      cell.alignment = { horizontal:'center', vertical:'center' };
+      cell.font = { size:8.5, bold:true, color:{argb: tipo ? 'FFFFFFFF' : 'FF2B3140'} };
+      if(tipo) cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF'+tipo.cor.replace('#','').toUpperCase()} };
+      cell.border = { top:{style:'thin',color:{argb:'FFE2E6EE'}}, bottom:{style:'thin',color:{argb:'FFE2E6EE'}}, left:{style:'thin',color:{argb:'FFE2E6EE'}}, right:{style:'thin',color:{argb:'FFE2E6EE'}} };
+    }
+  });
+
+  // Legenda
+  let legR = ws.lastRow.number + 2;
+  ws.getCell(legR,1).value = 'Legenda:';
+  ws.getCell(legR,1).font = { bold:true, size:9 };
+  ET_DATA.tiposEscala.forEach(t=>{
+    legR++;
+    const c1 = ws.getCell(legR,1);
+    c1.value = `${t.sigla} — ${t.descricao}`;
+    c1.font = { size:9 };
+    ws.getCell(legR,1).fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FF'+t.cor.replace('#','').toUpperCase()} };
+    ws.getCell(legR,1).font = { size:9, bold:true, color:{argb:'FFFFFFFF'} };
+  });
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = etNomeArquivo('xlsx'); a.click();
+  URL.revokeObjectURL(url);
+}
+function etExportarPDF(){
+  const colabs = etColaboradoresFiltrados();
+  const diasNoMes = etDiasNoMes(ET_ATUAL.mes, ET_ATUAL.ano);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a3' });
+
+  doc.setFillColor(11,44,92);
+  doc.rect(0,0,1191,50,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(15);
+  doc.setFont(undefined,'bold');
+  doc.text(`ESCALA DE TRABALHO — ${MESES_PT[ET_ATUAL.mes-1].toUpperCase()}/${ET_ATUAL.ano}`, 26, 32);
+
+  const head = [['Colaborador', ...Array.from({length:diasNoMes},(_,i)=>String(i+1))]];
+  const body = colabs.map(c=>{
+    const linha = ET_ATUAL.dados[c.id]||{};
+    return [c.nome, ...Array.from({length:diasNoMes},(_,i)=>{
+      const tipo = linha[i+1] ? etTipoById(linha[i+1]) : null;
+      return tipo ? tipo.sigla : '';
+    })];
+  });
+
+  doc.autoTable({
+    startY: 66,
+    head, body,
+    theme:'grid',
+    styles:{ fontSize:7, halign:'center', cellPadding:2 },
+    headStyles:{ fillColor:[37,99,201], textColor:255, fontSize:7 },
+    columnStyles:{ 0:{ halign:'left', cellWidth:110, fontStyle:'bold' } },
+    didParseCell: (data)=>{
+      if(data.section==='body' && data.column.index>0){
+        const c = colabs[data.row.index];
+        const dia = data.column.index;
+        const tipoId = (ET_ATUAL.dados[c.id]||{})[dia];
+        const tipo = tipoId ? etTipoById(tipoId) : null;
+        if(tipo){
+          const hex = tipo.cor.replace('#','');
+          const r = parseInt(hex.substr(0,2),16), g = parseInt(hex.substr(2,2),16), b = parseInt(hex.substr(4,2),16);
+          data.cell.styles.fillColor = [r,g,b];
+          data.cell.styles.textColor = [255,255,255];
+        }
+      }
+    },
+    margin:{ left:20, right:20 }
+  });
+
+  const finalY = doc.lastAutoTable.finalY || 66;
+  doc.setTextColor(43,49,64);
+  doc.setFontSize(8);
+  doc.setFont(undefined,'normal');
+  let ly = finalY+18;
+  doc.text('Legenda:', 26, ly);
+  ET_DATA.tiposEscala.forEach(t=>{
+    ly += 14;
+    const hex = t.cor.replace('#','');
+    const r=parseInt(hex.substr(0,2),16), g=parseInt(hex.substr(2,2),16), b=parseInt(hex.substr(4,2),16);
+    doc.setFillColor(r,g,b);
+    doc.rect(26, ly-8, 10, 10, 'F');
+    doc.text(`${t.sigla} — ${t.descricao}`, 42, ly);
+  });
+
+  doc.save(etNomeArquivo('pdf'));
+}
+function etImprimir(){
+  window.print();
+}
+
+
 function processWorkbook(wb){
   const sheetName = wb.SheetNames.find(n=>n.toLowerCase().includes('anal')) || wb.SheetNames[0];
   const ws = wb.Sheets[sheetName];
@@ -3064,8 +4154,8 @@ function renderCurrentStats(){
 }
 
 /* ---------- NAVEGAÇÃO ---------- */
-const pages = ['dashboard','colaboradores','ranking','meta','protocolos','calendario','importar','cadastrologin','relatorios','ferias','minha','minhaescala'];
-const PAGE_ROLES = { dashboard:'master', colaboradores:'master', ranking:'master', meta:'master', protocolos:'master', calendario:'master', importar:'master', cadastrologin:'master', relatorios:'master', ferias:'master', minha:'tecnico', minhaescala:'tecnico' };
+const pages = ['dashboard','colaboradores','ranking','meta','protocolos','calendario','importar','cadastrologin','relatorios','ferias','escalatrabalho','minha','minhaescala'];
+const PAGE_ROLES = { dashboard:'master', colaboradores:'master', ranking:'master', meta:'master', protocolos:'master', calendario:'master', importar:'master', cadastrologin:'master', relatorios:'master', ferias:'master', escalatrabalho:'master', minha:'tecnico', minhaescala:'tecnico' };
 function goToPage(name){
   if(!CURRENT_USER) return;
   if(PAGE_ROLES[name] && PAGE_ROLES[name]!==CURRENT_USER.role) return; // bloqueia navegação fora do papel do usuário
@@ -3082,6 +4172,7 @@ function goToPage(name){
   if(name==='cadastrologin'){ fillRegColabOptions(); renderLoginList(); }
   if(name==='relatorios'){ fillPdfOptions(); renderPdfPreview(); }
   if(name==='ferias'){ fillFeriasColabList(); fillFeriasMesAno(); renderFeriasPage(); }
+  if(name==='escalatrabalho') etPageInit();
   if(name==='minha') renderMinha();
   if(name==='minhaescala'){ fillMinhaEscalaOptions(); renderMinhaEscala(); }
 }
