@@ -64,6 +64,10 @@ body{
 .sidebar-foot{padding:10px 8px 0;border-top:1px solid rgba(255,255,255,.12);font-size:11px;opacity:.6;}
 
 .main{flex:1;min-width:0;}
+.hamburger-btn{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--azul-900);padding:4px 6px;border-radius:8px;flex-shrink:0;}
+.hamburger-btn:hover{background:var(--cinza-100);}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(11,44,92,.5);z-index:95;}
+.sidebar-backdrop.show{display:block;}
 .topbar{
   background:#fff;border-bottom:1px solid var(--cinza-200);padding:16px 28px;
   display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;
@@ -499,6 +503,11 @@ tbody tr:hover{background:var(--azul-100);}
 .login-hint{margin-top:18px;font-size:11px;color:var(--cinza-600);text-align:center;line-height:1.6;background:var(--cinza-50);border-radius:9px;padding:10px 12px;}
 .user-badge{display:flex;align-items:center;gap:8px;background:var(--azul-100);color:var(--azul-700);font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;}
 .user-badge-link{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;}
+.profile-gear-btn{
+  background:none;border:none;cursor:pointer;font-size:14px;color:var(--azul-700);
+  padding:2px 4px;border-radius:6px;margin-right:2px;line-height:1;
+}
+.profile-gear-btn:hover{background:var(--azul-100);}
 .user-badge-link:hover{color:var(--rosa-600);}
 .user-badge .role-tag{background:var(--rosa-600);color:#fff;font-size:9.5px;padding:2px 7px;border-radius:20px;letter-spacing:.3px;}
 
@@ -508,9 +517,63 @@ tbody tr:hover{background:var(--azul-100);}
   .grid-3{grid-template-columns:1fr;}
 }
 @media (max-width:760px){
-  .sidebar{display:none;}
   .kpi-grid{grid-template-columns:repeat(2,1fr);}
   .content{padding:16px;}
+}
+/* ============================================================
+   RESPONSIVIDADE — CELULAR / TELAS PEQUENAS
+   ============================================================ */
+@media (max-width: 900px){
+  /* Sidebar vira uma gaveta deslizante, escondida por padrão */
+  .sidebar{
+    position:fixed; top:0; left:0; height:100vh; z-index:100;
+    transform:translateX(-100%); transition:transform .25s ease; width:250px;
+    box-shadow:0 0 0 rgba(0,0,0,0);
+  }
+  .sidebar.open{ transform:translateX(0); box-shadow:8px 0 30px rgba(0,0,0,.35); }
+  .hamburger-btn{display:block;}
+
+  .topbar{padding:10px 12px;flex-wrap:wrap;gap:8px;}
+  .topbar h1{font-size:14.5px;line-height:1.25;}
+  .topbar p{display:none;}
+  .topbar-actions{gap:6px;flex-wrap:wrap;width:100%;justify-content:flex-start;}
+  .topbar-actions .pill{display:none;}
+  .user-badge{font-size:11px;padding:5px 9px;}
+  .btn{padding:8px 12px;font-size:12.5px;}
+
+  .content{padding:14px 12px 40px;max-width:100%;}
+  .section-title{font-size:13.5px;margin:22px 0 10px;}
+
+  .kpi-grid{grid-template-columns:repeat(2,1fr) !important;gap:10px;}
+  .kpi{padding:12px 12px;}
+  .kpi .k-value{font-size:19px;}
+
+  .filters{flex-direction:column;align-items:stretch;padding:12px 14px;gap:10px;}
+  .f-group{min-width:0;width:100%;}
+  .f-actions{margin-left:0;width:100%;flex-wrap:wrap;}
+
+  .grid-2, .grid-3{grid-template-columns:1fr !important;gap:12px;}
+  .card{padding:14px 14px;}
+
+  .modal-bg{padding:0;}
+  .modal{border-radius:0;max-width:100vw;width:100vw;height:100vh;max-height:100vh;padding:18px 14px 40px;}
+  .m-grid{grid-template-columns:1fr;}
+
+  table{font-size:12px;}
+  .table-wrap{-webkit-overflow-scrolling:touch;}
+
+  .login-card{padding:28px 22px;max-width:92vw;}
+
+  /* TechFlow / Escala de Trabalho / outros blocos com flex-wrap já se ajustam sozinhos,
+     mas reduzimos o tamanho de fonte geral pra caber melhor */
+  .tf-counters{grid-template-columns:repeat(2,1fr) !important;}
+  .tf-coord-row, .tf-sup-row{gap:8px !important;}
+}
+
+@media (max-width: 480px){
+  .kpi-grid{grid-template-columns:1fr !important;}
+  .tf-counters{grid-template-columns:1fr !important;}
+  .login-brand img{height:48px !important;}
 }
 </style>
 </head>
@@ -536,13 +599,51 @@ tbody tr:hover{background:var(--azul-100);}
       <button class="login-btn" onclick="handleLogin()">ENTRAR</button>
     </div>
     <div class="login-hint">
-      Acesso <b>Master</b>: usuário <b>admin</b> / senha <b>admin</b> — acesso completo ao painel.<br>
-      Acesso <b>Técnico</b>: CPF e senha cadastrados pelo Master, vinculados ao seu nome — mostra apenas sua própria pontuação.
+      Acesso <b>Técnico</b>: CPF e senha cadastrados pelo seu gestor, vinculados ao seu nome — mostra apenas sua própria pontuação.<br>
+      Acesso <b>Gerência</b> e <b>Coordenação/Supervisão</b>: usuário e senha cadastrados internamente pela equipe.<br>
+      Esqueceu a senha? Peça pra Gerência ou Coordenação redefinir — o e-mail cadastrado no seu perfil ajuda a confirmar quem é você.
     </div>
   </div>
 </div>
 
+<!-- MODAL: EDITAR PERFIL (Gerência e Coordenação/Supervisão) -->
+<div class="modal-bg" id="perfilModalBg">
+  <div class="modal" style="max-width:480px;">
+    <button class="modal-close" onclick="fecharPerfilModal()">✕</button>
+    <h2>Meu perfil</h2>
+    <div class="m-sub" id="perfilSubtitulo">Altere seus dados de acesso quando quiser.</div>
+
+    <div class="f-group" style="margin-bottom:12px;">
+      <label id="perfilNomeLabel">Nome completo</label>
+      <input type="text" id="perfilNome" placeholder="Nome completo">
+    </div>
+    <div class="f-group" style="margin-bottom:12px;">
+      <label id="perfilLoginLabel">Usuário de login</label>
+      <input type="text" id="perfilLogin" placeholder="Usuário">
+    </div>
+    <div class="f-group" style="margin-bottom:12px;">
+      <label>E-mail (para recuperação de senha)</label>
+      <input type="email" id="perfilEmail" placeholder="nome@empresa.com">
+    </div>
+    <div class="grid-2" style="gap:10px;">
+      <div class="f-group" style="margin-bottom:12px;">
+        <label>Nova senha</label>
+        <input type="text" id="perfilSenhaNova" placeholder="Deixe em branco p/ manter">
+      </div>
+      <div class="f-group" style="margin-bottom:12px;">
+        <label>Confirmar nova senha</label>
+        <input type="text" id="perfilSenhaConfirma" placeholder="Repita a nova senha">
+      </div>
+    </div>
+    <div style="font-size:11.5px;color:var(--cinza-600);margin-bottom:14px;">A senha, se preenchida, precisa ter pelo menos 8 caracteres.</div>
+    <button class="btn btn-primary btn-sm" onclick="salvarPerfil()">Salvar alterações</button>
+    <div class="upload-status" id="perfilStatus"></div>
+  </div>
+</div>
+
 <div class="app" id="appRoot" style="display:none;">
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
@@ -551,43 +652,43 @@ tbody tr:hover{background:var(--azul-100);}
       <div class="brand-name">ZaaZ<span>TELECOM · REDES</span></div>
     </div>
     <ul class="nav" id="navList">
-      <li data-roles="master"><a data-page="dashboard" class="active">
+      <li data-roles="master,coordenacao"><a data-page="dashboard" class="active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
         Dashboard</a></li>
-      <li data-roles="master"><a data-page="colaboradores">
+      <li data-roles="master,coordenacao"><a data-page="colaboradores">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.5 14.5c2.6.2 4.7 2.3 4.9 5"/></svg>
         Colaboradores</a></li>
-      <li data-roles="master"><a data-page="ranking">
+      <li data-roles="master,coordenacao"><a data-page="ranking">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21V10M14 21V3M20 21v-7M4 21v-4"/></svg>
         Ranking</a></li>
-      <li data-roles="master"><a data-page="meta">
+      <li data-roles="master,coordenacao"><a data-page="meta">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
         Meta Semanal</a></li>
-      <li data-roles="master"><a data-page="protocolos">
+      <li data-roles="master,coordenacao"><a data-page="protocolos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5"/></svg>
         Protocolos</a></li>
-      <li data-roles="master"><a data-page="techflow">
+      <li data-roles="master,coordenacao"><a data-page="techflow">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2.4"/><circle cx="5" cy="19" r="2.4"/><circle cx="19" cy="19" r="2.4"/><path d="M12 7.4V12M12 12L6.3 17M12 12l5.7 5"/></svg>
         TechFlow</a></li>
-      <li data-roles="master"><a data-page="escalatrabalho">
+      <li data-roles="master,coordenacao"><a data-page="escalatrabalho">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v3M16 4v3"/><rect x="6" y="13" width="3" height="3" rx="0.5"/><rect x="10.5" y="13" width="3" height="3" rx="0.5"/><rect x="15" y="13" width="3" height="3" rx="0.5"/></svg>
         Escala de Trabalho</a></li>
-      <li data-roles="master"><a data-page="calendario">
+      <li data-roles="master,coordenacao"><a data-page="calendario">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         Calendário</a></li>
-      <li data-roles="master"><a data-page="ferias">
+      <li data-roles="master,coordenacao"><a data-page="ferias">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 12a8 8 0 1 1 16 0M4 12a8 8 0 0 0 16 0"/><path d="M9 8v8M15 8v8" stroke-dasharray="1 2"/><circle cx="12" cy="6" r="1.5"/></svg>
         Férias</a></li>
-      <li data-roles="master"><a data-page="justificativa">
+      <li data-roles="master,coordenacao"><a data-page="justificativa">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2h6l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M9 12h6M9 16h4M9 8h2"/></svg>
         Justificativa de Ponto</a></li>
-      <li data-roles="master"><a data-page="relatorios">
+      <li data-roles="master,coordenacao"><a data-page="relatorios">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h8l4 4v14H7z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>
         Relatórios PDF</a></li>
       <li data-roles="master"><a data-page="importar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         Importar Excel</a></li>
-      <li data-roles="master"><a data-page="cadastrologin">
+      <li data-roles="master,coordenacao"><a data-page="cadastrologin">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
         Cadastrar Login</a></li>
       <li data-roles="tecnico"><a data-page="minha">
@@ -603,9 +704,12 @@ tbody tr:hover{background:var(--azul-100);}
   <!-- MAIN -->
   <div class="main">
     <div class="topbar">
-      <div>
-        <h1>PRODUTIVIDADE — REDES</h1>
-        <p>Acompanhamento diário de produtividade dos colaboradores</p>
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+        <div style="min-width:0;">
+          <h1>PRODUTIVIDADE — REDES</h1>
+          <p>Acompanhamento diário de produtividade dos colaboradores</p>
+        </div>
       </div>
       <div class="topbar-actions">
         <div class="user-badge" id="userBadge">-</div>
@@ -1083,22 +1187,45 @@ tbody tr:hover{background:var(--azul-100);}
     <div class="content" id="pageCadastrologin" style="display:none;">
       <div class="grid-2">
         <div class="card">
-          <h3>Cadastrar login de técnico</h3>
+          <h3>Cadastrar novo login</h3>
           <div class="f-group" style="margin-bottom:12px;">
-            <label>CPF</label>
-            <input type="text" id="regCpf" placeholder="000.000.000-00" maxlength="14">
+            <label>Tipo de acesso</label>
+            <select id="regTipo" onchange="regAtualizarCampos()">
+              <option value="tecnico">Técnico</option>
+              <option value="coordenacao" id="regOpcaoCoord" style="display:none;">Coordenação / Supervisão</option>
+            </select>
           </div>
-          <div class="f-group" style="margin-bottom:12px;">
-            <label>Senha</label>
-            <input type="text" id="regSenha" placeholder="Defina uma senha para o técnico">
+          <div id="regCamposTecnico">
+            <div class="f-group" style="margin-bottom:12px;">
+              <label>CPF</label>
+              <input type="text" id="regCpf" placeholder="000.000.000-00" maxlength="14">
+            </div>
+            <div class="f-group" style="margin-bottom:12px;">
+              <label>Vincular ao colaborador</label>
+              <select id="regColab"><option value="">Selecione um colaborador</option></select>
+            </div>
+          </div>
+          <div id="regCamposCoord" style="display:none;">
+            <div class="f-group" style="margin-bottom:12px;">
+              <label>Nome completo</label>
+              <input type="text" id="regNomeCoord" placeholder="Nome completo">
+            </div>
+            <div class="f-group" style="margin-bottom:12px;">
+              <label>Usuário de login</label>
+              <input type="text" id="regUsuarioCoord" placeholder="Ex: joao.silva">
+            </div>
+            <div class="f-group" style="margin-bottom:12px;">
+              <label>E-mail (para recuperação de senha)</label>
+              <input type="email" id="regEmailCoord" placeholder="nome@empresa.com">
+            </div>
           </div>
           <div class="f-group" style="margin-bottom:14px;">
-            <label>Vincular ao colaborador</label>
-            <select id="regColab"><option value="">Selecione um colaborador</option></select>
+            <label>Senha</label>
+            <input type="text" id="regSenha" placeholder="Mínimo 8 caracteres">
           </div>
           <button class="btn btn-primary btn-sm" onclick="registrarLogin()">+ Cadastrar login</button>
           <div class="upload-status" id="regStatus"></div>
-          <div style="margin-top:16px;font-size:12px;color:var(--cinza-600);line-height:1.6;">
+          <div style="margin-top:16px;font-size:12px;color:var(--cinza-600);line-height:1.6;" id="regAjuda">
             O técnico usará o CPF cadastrado como usuário e a senha definida aqui para entrar. Ao logar, ele verá apenas a pontuação diária do colaborador vinculado — nunca os dados dos demais.
           </div>
         </div>
@@ -1404,7 +1531,7 @@ tbody tr:hover{background:var(--azul-100);}
             <button class="btn btn-outline btn-sm" id="etColabDeleteBtn" style="display:none;color:var(--critico);border-color:#fbd2d8;" onclick="etExcluirColaboradorEmEdicao()">🗑 Excluir colaborador</button>
             <div class="upload-status" id="etColabStatusMsg"></div>
           </div>
-          <div class="card">
+          <div class="card" id="etImportCard">
             <h3>Importar colaboradores (Excel)</h3>
             <div class="uploadbox" onclick="document.getElementById('etColabFile').click()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
@@ -1725,8 +1852,8 @@ tbody tr:hover{background:var(--azul-100);}
     <div class="content" id="pageTechflow" style="display:none;">
 
       <div class="tf-subtabs">
-        <button class="tf-subtab active" data-tfpanel="organograma" onclick="tfGoTab('organograma')">Organograma Operacional</button>
         <button class="tf-subtab" data-tfpanel="solicitacoes" onclick="tfGoTab('solicitacoes')">Solicitações — Manutenção Redes</button>
+        <button class="tf-subtab active" data-tfpanel="organograma" onclick="tfGoTab('organograma')">Organograma Operacional</button>
       </div>
 
       <!-- SUB-ABA: ORGANOGRAMA OPERACIONAL -->
@@ -1990,16 +2117,57 @@ const ET_SEED_DATA = {"colaboradores": [{"id": "525667", "nome": "ADILTON PINTO 
 
 const TF_ORG_DATA = {"gerente": "Ivan Borges", "estrutura": {"João Paulo": {"Allan Macedo": ["Caicó|RN", "Picuí|PB", "Santa Cruz|RN", "Parelhas|RN"], "Hian Rael": ["Arez|RN", "Natal|RN", "Macau|RN", "Touros|RN"]}, "Alexandre Castelo": {"Walfredo": ["Guarabira|PB", "Jacumã|PB", "Campina Grande|PB"], "Danilo Alves": ["Juazeirinho|PB", "Monteiro|PB", "São João do Rio do Peixe|PB", "Santa Luzia|PB"]}, "Rodolfo Barros": {"Lucas da Silva": ["Jacobina|BA", "Capim Grosso|BA", "Filadélfia|BA", "Ponto Novo|BA", "Campo Formoso|BA"], "Rodolfo Eduardo": ["Garanhuns|PE", "São Bento do Una|PE", "Lajedo|PE"]}}};
 const TF_GEO = {"Caicó|RN": [-6.4667, -37.0972], "Picuí|PB": [-6.5083, -36.3444], "Santa Cruz|RN": [-6.2222, -36.0206], "Parelhas|RN": [-6.6928, -36.6608], "Arez|RN": [-6.1961, -35.2864], "Natal|RN": [-5.7945, -35.211], "Macau|RN": [-5.1167, -36.6333], "Touros|RN": [-5.1989, -35.4608], "Guarabira|PB": [-6.8514, -35.4911], "Jacumã|PB": [-7.3167, -34.7833], "Campina Grande|PB": [-7.2306, -35.8811], "Juazeirinho|PB": [-7.0667, -36.5833], "Monteiro|PB": [-7.8892, -37.1197], "São João do Rio do Peixe|PB": [-6.7414, -38.5225], "Santa Luzia|PB": [-6.8797, -36.9186], "Jacobina|BA": [-11.1803, -40.5244], "Capim Grosso|BA": [-11.3872, -40.0122], "Filadélfia|BA": [-11.5389, -40.1233], "Ponto Novo|BA": [-10.9075, -40.2], "Campo Formoso|BA": [-10.5233, -40.3286], "Garanhuns|PE": [-8.8827, -36.4967], "São Bento do Una|PE": [-8.5219, -36.4364], "Lajedo|PE": [-8.6631, -36.2439], "Serra Talhada|PE": [-7.9958, -38.2947], "Arcoverde|PE": [-8.4192, -37.0397]};
-const TF_SOLICITACOES_SEED = [{"protocolo": 8947395, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "ANA ELIUDE PEREIRA SOARES", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T15:48:00-03:00", "dt_encerramento": null, "data_abertura": "2026-09-23T15:45:40-03:00", "data_agendamento": "2026-09-23T12:01:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8945439, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "IVAN BORGES PEREIRA", "fechamento": "ALEXANDRE CASTELO BRANCO CHAVES", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T16:50:25-03:00", "dt_encerramento": null, "data_abertura": "2026-09-23T11:11:44-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8944494, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "WALFREDO ARAUJO BARBOSA", "fechamento": "EZEQUIEL PEREIRA TEIXEIRA", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T18:26:07-03:00", "dt_encerramento": null, "data_abertura": "2026-09-23T09:30:42-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8943918, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ENCERRAMENTO", "criador": "WALFREDO ARAUJO BARBOSA", "fechamento": "WELLINGTON LIMEIRA DE ARAUJO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T09:54:05-03:00", "dt_encerramento": "2026-09-23T10:29:29-03:00", "data_abertura": "2026-09-23T08:18:01-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8943865, "cidade": "GARANHUNS", "uf": "PE", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "RODOLFO EDUARDO ROCHA DE SOUZA BARROS", "fechamento": "GENIBERG LIMA DA SILVA", "unidade": "UNIDADE LAJEDO", "dt_fechamento": "2026-09-23T09:45:49-03:00", "dt_encerramento": null, "data_abertura": "2026-09-23T08:10:58-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8927006, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:43:38-03:00", "data_abertura": "2026-09-18T14:48:30-03:00", "data_agendamento": "2026-09-18T20:48:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8926962, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:43:52-03:00", "data_abertura": "2026-09-18T14:43:38-03:00", "data_agendamento": "2026-09-18T20:42:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8919936, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:07-03:00", "data_abertura": "2026-09-17T09:52:18-03:00", "data_agendamento": "2026-09-17T15:51:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919932, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:23-03:00", "data_abertura": "2026-09-17T09:51:27-03:00", "data_agendamento": "2026-09-17T15:50:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919925, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:39-03:00", "data_abertura": "2026-09-17T09:50:37-03:00", "data_agendamento": "2026-09-17T15:50:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919917, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:58-03:00", "data_abertura": "2026-09-17T09:49:47-03:00", "data_agendamento": "2026-09-17T15:49:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919902, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:11-03:00", "data_abertura": "2026-09-17T09:48:08-03:00", "data_agendamento": "2026-09-17T15:47:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919898, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:23-03:00", "data_abertura": "2026-09-17T09:47:24-03:00", "data_agendamento": "2026-09-17T15:46:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919887, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:35-03:00", "data_abertura": "2026-09-17T09:46:21-03:00", "data_agendamento": "2026-09-17T15:45:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919880, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:50-03:00", "data_abertura": "2026-09-17T09:45:23-03:00", "data_agendamento": "2026-09-17T15:44:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919853, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:01-03:00", "data_abertura": "2026-09-17T09:42:31-03:00", "data_agendamento": "2026-09-17T15:42:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919846, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:18-03:00", "data_abertura": "2026-09-17T09:41:43-03:00", "data_agendamento": "2026-09-17T15:41:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919839, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:29-03:00", "data_abertura": "2026-09-17T09:40:56-03:00", "data_agendamento": "2026-09-17T15:40:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919832, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:42-03:00", "data_abertura": "2026-09-17T09:39:58-03:00", "data_agendamento": "2026-09-17T15:38:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919788, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:53-03:00", "data_abertura": "2026-09-17T09:35:10-03:00", "data_agendamento": "2026-09-17T15:34:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919768, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:47:06-03:00", "data_abertura": "2026-09-17T09:32:54-03:00", "data_agendamento": "2026-09-17T15:32:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919759, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:47:52-03:00", "data_abertura": "2026-09-17T09:31:54-03:00", "data_agendamento": "2026-09-17T15:29:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919732, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:48:22-03:00", "data_abertura": "2026-09-17T09:29:20-03:00", "data_agendamento": "2026-09-17T14:48:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919368, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:49:10-03:00", "data_abertura": "2026-09-17T08:47:01-03:00", "data_agendamento": "2026-09-17T14:46:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919362, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:49:36-03:00", "data_abertura": "2026-09-17T08:45:57-03:00", "data_agendamento": "2026-09-17T14:45:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919352, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:11-03:00", "data_abertura": "2026-09-17T08:44:55-03:00", "data_agendamento": "2026-09-17T14:44:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919344, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:24-03:00", "data_abertura": "2026-09-17T08:43:44-03:00", "data_agendamento": "2026-09-17T14:43:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919233, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:36-03:00", "data_abertura": "2026-09-17T08:32:22-03:00", "data_agendamento": "2026-09-17T14:31:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919225, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:49-03:00", "data_abertura": "2026-09-17T08:31:33-03:00", "data_agendamento": "2026-09-17T14:30:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919209, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:51:02-03:00", "data_abertura": "2026-09-17T08:29:56-03:00", "data_agendamento": "2026-09-17T14:29:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919205, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:51:18-03:00", "data_abertura": "2026-09-17T08:28:58-03:00", "data_agendamento": "2026-09-17T14:27:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918349, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:51:40-03:00", "data_abertura": "2026-09-16T18:06:43-03:00", "data_agendamento": "2026-09-17T00:06:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918347, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:03-03:00", "data_abertura": "2026-09-16T18:05:52-03:00", "data_agendamento": "2026-09-17T00:04:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918341, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:15-03:00", "data_abertura": "2026-09-16T18:04:16-03:00", "data_agendamento": "2026-09-17T00:03:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918338, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:28-03:00", "data_abertura": "2026-09-16T18:03:28-03:00", "data_agendamento": "2026-09-17T00:01:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918300, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:40-03:00", "data_abertura": "2026-09-16T17:56:26-03:00", "data_agendamento": "2026-09-16T23:55:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918291, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:56-03:00", "data_abertura": "2026-09-16T17:54:37-03:00", "data_agendamento": "2026-09-16T23:53:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918288, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:11-03:00", "data_abertura": "2026-09-16T17:53:27-03:00", "data_agendamento": "2026-09-16T23:52:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918281, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:28-03:00", "data_abertura": "2026-09-16T17:52:12-03:00", "data_agendamento": "2026-09-16T23:50:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918258, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:41-03:00", "data_abertura": "2026-09-16T17:46:19-03:00", "data_agendamento": "2026-09-16T23:45:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8918252, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:53-03:00", "data_abertura": "2026-09-16T17:45:27-03:00", "data_agendamento": "2026-09-16T23:44:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8918244, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:05-03:00", "data_abertura": "2026-09-16T17:44:06-03:00", "data_agendamento": "2026-09-16T23:43:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8918239, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:21-03:00", "data_abertura": "2026-09-16T17:42:47-03:00", "data_agendamento": "2026-09-16T23:41:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8913752, "cidade": "TOUROS", "uf": "RN", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "HIAN RAEL ARCANJO DE SOUZA", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE TOUROS", "dt_fechamento": null, "dt_encerramento": "2026-09-18T15:38:09-03:00", "data_abertura": "2026-09-16T07:52:29-03:00", "data_agendamento": "2026-12-31T18:00:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8912584, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:32-03:00", "data_abertura": "2026-09-15T17:07:44-03:00", "data_agendamento": "2026-09-15T22:26:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8912108, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:48-03:00", "data_abertura": "2026-09-15T16:24:50-03:00", "data_agendamento": "2026-09-15T22:23:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8912096, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:02-03:00", "data_abertura": "2026-09-15T16:23:29-03:00", "data_agendamento": "2026-09-15T22:22:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8911985, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:17-03:00", "data_abertura": "2026-09-15T16:13:48-03:00", "data_agendamento": "2026-09-15T20:39:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8910840, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:36-03:00", "data_abertura": "2026-09-15T14:37:52-03:00", "data_agendamento": "2026-09-15T20:36:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909456, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:48-03:00", "data_abertura": "2026-09-15T12:14:55-03:00", "data_agendamento": "2026-09-15T18:13:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909439, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:56:01-03:00", "data_abertura": "2026-09-15T12:13:05-03:00", "data_agendamento": "2026-09-15T18:12:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909427, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:56:18-03:00", "data_abertura": "2026-09-15T12:11:55-03:00", "data_agendamento": "2026-09-15T18:10:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909389, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:56:56-03:00", "data_abertura": "2026-09-15T12:08:19-03:00", "data_agendamento": "2026-09-15T18:07:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8909379, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:57:25-03:00", "data_abertura": "2026-09-15T12:07:09-03:00", "data_agendamento": "2026-09-15T18:06:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8909363, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:57:53-03:00", "data_abertura": "2026-09-15T12:04:46-03:00", "data_agendamento": "2026-09-15T18:03:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8909351, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:59:07-03:00", "data_abertura": "2026-09-15T12:03:05-03:00", "data_agendamento": "2026-09-15T17:59:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8908838, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T09:00:00-03:00", "data_abertura": "2026-09-15T11:22:46-03:00", "data_agendamento": "2026-09-15T17:22:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8908812, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T09:00:21-03:00", "data_abertura": "2026-09-15T11:21:11-03:00", "data_agendamento": "2026-09-15T17:20:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8908773, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T09:00:39-03:00", "data_abertura": "2026-09-15T11:18:48-03:00", "data_agendamento": "2026-09-15T17:17:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8908705, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:43:22-03:00", "data_abertura": "2026-09-15T11:13:19-03:00", "data_agendamento": "2026-09-15T17:10:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}];
-const TF_ULTIMA_ATUALIZACAO_SEED = '2026-09-23T21:10:00-03:00';
+const TF_SOLICITACOES_SEED = [{"protocolo": 8953078, "cidade": "PONTO NOVO", "uf": "BA", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "LUCAS DA SILVA", "fechamento": "ADILTON PINTO DOS SANTOS", "unidade": "UNIDADE FILADELFIA", "dt_fechamento": "2026-09-24T19:33:53-03:00", "dt_encerramento": null, "data_abertura": "2026-09-24T17:25:49-03:00", "data_agendamento": "2026-09-24T12:01:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8952221, "cidade": "TOUROS", "uf": "RN", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "HIAN RAEL ARCANJO DE SOUZA", "fechamento": "FRANCISCO CLEBER LOURENCO JUNIOR", "unidade": "UNIDADE TOUROS", "dt_fechamento": "2026-09-24T18:48:27-03:00", "dt_encerramento": null, "data_abertura": "2026-09-24T15:13:35-03:00", "data_agendamento": "2026-09-24T08:00:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO DE BACKBONE"}, {"protocolo": 8952127, "cidade": "CAICÓ", "uf": "RN", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ANDAMENTO", "criador": "ALLAN MACEDO PRESLEY DE MEDEIROS", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAICÓ", "dt_fechamento": null, "dt_encerramento": null, "data_abertura": "2026-09-24T15:01:54-03:00", "data_agendamento": "2026-09-24T12:01:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8949633, "cidade": "CAICÓ", "uf": "RN", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "ALLAN MACEDO PRESLEY DE MEDEIROS", "fechamento": "SAULO BATISTA DE SOUZA", "unidade": "UNIDADE CAICÓ", "dt_fechamento": "2026-09-24T15:00:00-03:00", "dt_encerramento": null, "data_abertura": "2026-09-24T09:20:42-03:00", "data_agendamento": "2026-09-24T08:00:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8949250, "cidade": "SANTA LUZIA", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ENCERRAMENTO", "criador": "DANILO ALVES DE ALMEIDA", "fechamento": "WELLINGTON ROSSAN MORAIS CAMPOS", "unidade": "UNIDADE SANTA LUZIA", "dt_fechamento": "2026-09-24T10:39:38-03:00", "dt_encerramento": "2026-09-24T12:50:52-03:00", "data_abertura": "2026-09-24T08:34:51-03:00", "data_agendamento": "2026-09-24T08:40:00-03:00", "tipo_contexto": "MT REDES - ATENUAÇÃO"}, {"protocolo": 8949222, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ENCERRAMENTO", "criador": "WALFREDO ARAUJO BARBOSA", "fechamento": "ARIGILVANDO DE LIMA SILVA", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-24T14:41:34-03:00", "dt_encerramento": "2026-09-24T15:45:19-03:00", "data_abertura": "2026-09-24T08:29:57-03:00", "data_agendamento": "2026-09-24T08:00:00-03:00", "tipo_contexto": "MT REDES - ATENUAÇÃO"}, {"protocolo": 8949134, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ENCERRAMENTO", "criador": "WALFREDO ARAUJO BARBOSA", "fechamento": "WALFREDO ARAUJO BARBOSA", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-24T08:40:17-03:00", "data_abertura": "2026-09-24T08:16:39-03:00", "data_agendamento": "2026-09-24T14:16:39-03:00", "tipo_contexto": "MT REDES - ATENUAÇÃO"}, {"protocolo": 8947395, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "ANA ELIUDE PEREIRA SOARES", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T15:48:00-03:00", "dt_encerramento": "2026-09-24T14:48:28-03:00", "data_abertura": "2026-09-23T15:45:40-03:00", "data_agendamento": "2026-09-23T12:01:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8945439, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "IVAN BORGES PEREIRA", "fechamento": "ALEXANDRE CASTELO BRANCO CHAVES", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T16:50:25-03:00", "dt_encerramento": "2026-09-24T15:01:10-03:00", "data_abertura": "2026-09-23T11:11:44-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8944494, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ENCERRAMENTO", "criador": "WALFREDO ARAUJO BARBOSA", "fechamento": "EZEQUIEL PEREIRA TEIXEIRA", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T18:26:07-03:00", "dt_encerramento": "2026-09-24T09:07:17-03:00", "data_abertura": "2026-09-23T09:30:42-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8943918, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ENCERRAMENTO", "criador": "WALFREDO ARAUJO BARBOSA", "fechamento": "WELLINGTON LIMEIRA DE ARAUJO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": "2026-09-23T09:54:05-03:00", "dt_encerramento": "2026-09-23T10:29:29-03:00", "data_abertura": "2026-09-23T08:18:01-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8943865, "cidade": "GARANHUNS", "uf": "PE", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "RODOLFO EDUARDO ROCHA DE SOUZA BARROS", "fechamento": "GENIBERG LIMA DA SILVA", "unidade": "UNIDADE LAJEDO", "dt_fechamento": "2026-09-23T09:45:49-03:00", "dt_encerramento": null, "data_abertura": "2026-09-23T08:10:58-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8943839, "cidade": "GARANHUNS", "uf": "PE", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "FECHAMENTO", "criador": "RODOLFO EDUARDO ROCHA DE SOUZA BARROS", "fechamento": "EFRAIM PESSOA DE BARROS SILVA", "unidade": "UNIDADE LAJEDO", "dt_fechamento": "2026-09-23T20:20:56-03:00", "dt_encerramento": null, "data_abertura": "2026-09-23T08:05:08-03:00", "data_agendamento": "2026-09-23T08:00:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8931165, "cidade": "SANTA LUZIA", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "ENCERRAMENTO", "criador": "MARCELO DA SILVA GOMES", "fechamento": "WALFREDO ARAUJO BARBOSA", "unidade": "UNIDADE SANTA LUZIA", "dt_fechamento": null, "dt_encerramento": "2026-09-24T09:53:39-03:00", "data_abertura": "2026-09-19T16:47:40-03:00", "data_agendamento": "2026-09-21T22:45:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8927006, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:43:38-03:00", "data_abertura": "2026-09-18T14:48:30-03:00", "data_agendamento": "2026-09-18T20:48:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8926962, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:43:52-03:00", "data_abertura": "2026-09-18T14:43:38-03:00", "data_agendamento": "2026-09-18T20:42:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8919936, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:07-03:00", "data_abertura": "2026-09-17T09:52:18-03:00", "data_agendamento": "2026-09-17T15:51:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919932, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:23-03:00", "data_abertura": "2026-09-17T09:51:27-03:00", "data_agendamento": "2026-09-17T15:50:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919925, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:39-03:00", "data_abertura": "2026-09-17T09:50:37-03:00", "data_agendamento": "2026-09-17T15:50:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919917, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:44:58-03:00", "data_abertura": "2026-09-17T09:49:47-03:00", "data_agendamento": "2026-09-17T15:49:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919902, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:11-03:00", "data_abertura": "2026-09-17T09:48:08-03:00", "data_agendamento": "2026-09-17T15:47:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919898, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:23-03:00", "data_abertura": "2026-09-17T09:47:24-03:00", "data_agendamento": "2026-09-17T15:46:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919887, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:35-03:00", "data_abertura": "2026-09-17T09:46:21-03:00", "data_agendamento": "2026-09-17T15:45:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919880, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:45:50-03:00", "data_abertura": "2026-09-17T09:45:23-03:00", "data_agendamento": "2026-09-17T15:44:00-03:00", "tipo_contexto": "MT REDES - ACOMPANHAMENTO DO SERVIÇO DA CONCESSIONÁRIA"}, {"protocolo": 8919853, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:01-03:00", "data_abertura": "2026-09-17T09:42:31-03:00", "data_agendamento": "2026-09-17T15:42:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919846, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:18-03:00", "data_abertura": "2026-09-17T09:41:43-03:00", "data_agendamento": "2026-09-17T15:41:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919839, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:29-03:00", "data_abertura": "2026-09-17T09:40:56-03:00", "data_agendamento": "2026-09-17T15:40:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919832, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:42-03:00", "data_abertura": "2026-09-17T09:39:58-03:00", "data_agendamento": "2026-09-17T15:38:00-03:00", "tipo_contexto": "MT REDES - APOIO - ENGENHARIA"}, {"protocolo": 8919788, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:46:53-03:00", "data_abertura": "2026-09-17T09:35:10-03:00", "data_agendamento": "2026-09-17T15:34:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919768, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:47:06-03:00", "data_abertura": "2026-09-17T09:32:54-03:00", "data_agendamento": "2026-09-17T15:32:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919759, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:47:52-03:00", "data_abertura": "2026-09-17T09:31:54-03:00", "data_agendamento": "2026-09-17T15:29:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919732, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:48:22-03:00", "data_abertura": "2026-09-17T09:29:20-03:00", "data_agendamento": "2026-09-17T14:48:00-03:00", "tipo_contexto": "MT REDES - INDISPONIBILIDADE DE SINAL"}, {"protocolo": 8919368, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:49:10-03:00", "data_abertura": "2026-09-17T08:47:01-03:00", "data_agendamento": "2026-09-17T14:46:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919362, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:49:36-03:00", "data_abertura": "2026-09-17T08:45:57-03:00", "data_agendamento": "2026-09-17T14:45:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919352, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:11-03:00", "data_abertura": "2026-09-17T08:44:55-03:00", "data_agendamento": "2026-09-17T14:44:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919344, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:24-03:00", "data_abertura": "2026-09-17T08:43:44-03:00", "data_agendamento": "2026-09-17T14:43:00-03:00", "tipo_contexto": "MT REDES - IMPLANTAÇÃO DE POSTE"}, {"protocolo": 8919233, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:36-03:00", "data_abertura": "2026-09-17T08:32:22-03:00", "data_agendamento": "2026-09-17T14:31:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919225, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:50:49-03:00", "data_abertura": "2026-09-17T08:31:33-03:00", "data_agendamento": "2026-09-17T14:30:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919209, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:51:02-03:00", "data_abertura": "2026-09-17T08:29:56-03:00", "data_agendamento": "2026-09-17T14:29:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8919205, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:51:18-03:00", "data_abertura": "2026-09-17T08:28:58-03:00", "data_agendamento": "2026-09-17T14:27:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918349, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:51:40-03:00", "data_abertura": "2026-09-16T18:06:43-03:00", "data_agendamento": "2026-09-17T00:06:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918347, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:03-03:00", "data_abertura": "2026-09-16T18:05:52-03:00", "data_agendamento": "2026-09-17T00:04:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918341, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:15-03:00", "data_abertura": "2026-09-16T18:04:16-03:00", "data_agendamento": "2026-09-17T00:03:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918338, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:28-03:00", "data_abertura": "2026-09-16T18:03:28-03:00", "data_agendamento": "2026-09-17T00:01:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918300, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:40-03:00", "data_abertura": "2026-09-16T17:56:26-03:00", "data_agendamento": "2026-09-16T23:55:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918291, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:52:56-03:00", "data_abertura": "2026-09-16T17:54:37-03:00", "data_agendamento": "2026-09-16T23:53:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918288, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:11-03:00", "data_abertura": "2026-09-16T17:53:27-03:00", "data_agendamento": "2026-09-16T23:52:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918281, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:28-03:00", "data_abertura": "2026-09-16T17:52:12-03:00", "data_agendamento": "2026-09-16T23:50:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8918258, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:41-03:00", "data_abertura": "2026-09-16T17:46:19-03:00", "data_agendamento": "2026-09-16T23:45:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8918252, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:53:53-03:00", "data_abertura": "2026-09-16T17:45:27-03:00", "data_agendamento": "2026-09-16T23:44:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8918244, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:05-03:00", "data_abertura": "2026-09-16T17:44:06-03:00", "data_agendamento": "2026-09-16T23:43:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8918239, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:21-03:00", "data_abertura": "2026-09-16T17:42:47-03:00", "data_agendamento": "2026-09-16T23:41:00-03:00", "tipo_contexto": "MT REDES - CABO BAIXO"}, {"protocolo": 8913752, "cidade": "TOUROS", "uf": "RN", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "HIAN RAEL ARCANJO DE SOUZA", "fechamento": "HIAN RAEL ARCANJO DE SOUZA", "unidade": "UNIDADE TOUROS", "dt_fechamento": null, "dt_encerramento": "2026-09-18T15:38:09-03:00", "data_abertura": "2026-09-16T07:52:29-03:00", "data_agendamento": "2026-12-31T18:00:00-03:00", "tipo_contexto": "MT REDES - ROMPIMENTO TOTAL"}, {"protocolo": 8912584, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:32-03:00", "data_abertura": "2026-09-15T17:07:44-03:00", "data_agendamento": "2026-09-15T22:26:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8912108, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:54:48-03:00", "data_abertura": "2026-09-15T16:24:50-03:00", "data_agendamento": "2026-09-15T22:23:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8912096, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:02-03:00", "data_abertura": "2026-09-15T16:23:29-03:00", "data_agendamento": "2026-09-15T22:22:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8911985, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:17-03:00", "data_abertura": "2026-09-15T16:13:48-03:00", "data_agendamento": "2026-09-15T20:39:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8910840, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:36-03:00", "data_abertura": "2026-09-15T14:37:52-03:00", "data_agendamento": "2026-09-15T20:36:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909456, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:55:48-03:00", "data_abertura": "2026-09-15T12:14:55-03:00", "data_agendamento": "2026-09-15T18:13:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909439, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:56:01-03:00", "data_abertura": "2026-09-15T12:13:05-03:00", "data_agendamento": "2026-09-15T18:12:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909427, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:56:18-03:00", "data_abertura": "2026-09-15T12:11:55-03:00", "data_agendamento": "2026-09-15T18:10:00-03:00", "tipo_contexto": "MT REDES - VERIFICAÇÃO DA SAÚDE DA REDE"}, {"protocolo": 8909389, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:56:56-03:00", "data_abertura": "2026-09-15T12:08:19-03:00", "data_agendamento": "2026-09-15T18:07:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8909379, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:57:25-03:00", "data_abertura": "2026-09-15T12:07:09-03:00", "data_agendamento": "2026-09-15T18:06:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8909363, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:57:53-03:00", "data_abertura": "2026-09-15T12:04:46-03:00", "data_agendamento": "2026-09-15T18:03:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8909351, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:59:07-03:00", "data_abertura": "2026-09-15T12:03:05-03:00", "data_agendamento": "2026-09-15T17:59:00-03:00", "tipo_contexto": "MT REDES - ATIVAÇÃO CORP DEDICADO - LANÇAMENTO MENOR QUE 500M"}, {"protocolo": 8908838, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T09:00:00-03:00", "data_abertura": "2026-09-15T11:22:46-03:00", "data_agendamento": "2026-09-15T17:22:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8908812, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T09:00:21-03:00", "data_abertura": "2026-09-15T11:21:11-03:00", "data_agendamento": "2026-09-15T17:20:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8908773, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T09:00:39-03:00", "data_abertura": "2026-09-15T11:18:48-03:00", "data_agendamento": "2026-09-15T17:17:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}, {"protocolo": 8908705, "cidade": "CAMPINA GRANDE", "uf": "PB", "situacao": "MANUTENÇÃO REDES - MANUTENÇÃO BACKBONE", "status": "CANCELADO", "criador": "ANA ELIUDE PEREIRA SOARES", "fechamento": "SEM INFORMACAO", "unidade": "UNIDADE CAMPINA GRANDE", "dt_fechamento": null, "dt_encerramento": "2026-09-23T08:43:22-03:00", "data_abertura": "2026-09-15T11:13:19-03:00", "data_agendamento": "2026-09-15T17:10:00-03:00", "tipo_contexto": "MT REDES - CTO LOTADA COM VIABILIDADE"}];
+const TF_ULTIMA_ATUALIZACAO_SEED = '2026-09-25T02:45:00-03:00';
 
 let charts = {};
 
 /* ============================================================
-   AUTENTICAÇÃO — Master (admin/admin) e Técnico (CPF cadastrado)
+   AUTENTICAÇÃO — Gerência (admin, com override opcional), Coordenação/Supervisão e Técnico
    ============================================================ */
-let CURRENT_USER = null; // {role:'master'} ou {role:'tecnico', colaborador, cpf}
-let LOGINS = []; // {id, cpf, senha, colaborador} — mantido em memória durante a sessão
+let CURRENT_USER = null; // {role:'master'} · {role:'coordenacao', id, nome, login, email} · {role:'tecnico', colaborador, cpf}
+const LOGINS_STORAGE_KEY = 'proxxima_logins_v1';
+let LOGINS = []; // {id,role:'tecnico',cpf,senha,colaborador} ou {id,role:'coordenacao',nome,login,senha,email}
+
+const ADMIN_PROFILE_KEY = 'proxxima_admin_profile_v1';
+let ADMIN_PROFILE = { nome:'Gerência', usuario:'admin', senha:'admin', email:'' };
+function adminProfileLoad(){
+  try{
+    const raw = localStorage.getItem(ADMIN_PROFILE_KEY);
+    if(raw) ADMIN_PROFILE = { ...ADMIN_PROFILE, ...JSON.parse(raw) };
+  }catch(e){}
+}
+function adminProfileSave(){ try{ localStorage.setItem(ADMIN_PROFILE_KEY, JSON.stringify(ADMIN_PROFILE)); }catch(e){} }
+adminProfileLoad();
+
+function loginsLoad(){
+  try{
+    const raw = localStorage.getItem(LOGINS_STORAGE_KEY);
+    if(raw===null){ loginsSeedInicial(); return; } // primeira vez que o dashboard roda nesse navegador
+    LOGINS = JSON.parse(raw);
+  }catch(e){ LOGINS = []; }
+}
+function loginsSave(){ try{ localStorage.setItem(LOGINS_STORAGE_KEY, JSON.stringify(LOGINS)); }catch(e){} }
+
+/* Pré-cadastro de Coordenação/Supervisão com os nomes já conhecidos do organograma (TF_ORG_DATA)
+   e dos relatos do Trino. Senha padrão de 8 dígitos — cada um deve trocar no primeiro acesso
+   (engrenagem de perfil, no topo da tela, depois de logar). Só roda uma única vez, na primeira
+   execução do dashboard nesse navegador — depois disso, os cadastros existentes nunca são sobrescritos. */
+function loginsSeedInicial(){
+  LOGINS = [
+    { id: etUid(), role:'coordenacao', nome:'João Paulo', login:'joao.paulo', senha:'10000001', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Alexandre Castelo', login:'alexandre.castelo', senha:'10000002', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Rodolfo Barros', login:'rodolfo.barros', senha:'10000003', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Allan Macedo', login:'allan.macedo', senha:'10000004', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Hian Rael', login:'hian.rael', senha:'10000005', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Walfredo Araujo Barbosa', login:'walfredo.barbosa', senha:'10000006', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Danilo Alves', login:'danilo.alves', senha:'10000007', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Lucas da Silva', login:'lucas.silva', senha:'10000008', email:'' },
+    { id: etUid(), role:'coordenacao', nome:'Rodolfo Eduardo Rocha de Souza Barros', login:'rodolfo.eduardo', senha:'10000009', email:'' },
+  ];
+  loginsSave();
+}
+loginsLoad();
 
 function normCpf(v){ return (v||'').replace(/\D/g,''); }
 function maskCpf(v){
@@ -2010,25 +2178,39 @@ function maskCpf(v){
   return out;
 }
 
+/* Níveis de acesso:
+   - master        = Gerência: acesso completo (equivalente ao antigo "admin")
+   - coordenacao   = Coordenação/Supervisão: tudo igual à Gerência, EXCETO importação de arquivos
+                     e cadastro de novos logins de Coordenação/Supervisão (só cadastra Técnico)
+   - tecnico       = acessa somente a própria pontuação/escala (inalterado) */
 function handleLogin(){
   const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   const errEl = document.getElementById('loginError');
   errEl.style.display='none';
 
-  if(user.toLowerCase()==='admin' && pass==='admin'){
+  if(user.toLowerCase()===ADMIN_PROFILE.usuario.toLowerCase() && pass===ADMIN_PROFILE.senha){
     CURRENT_USER = {role:'master'};
     afterLogin();
     return;
   }
-  const cpfNorm = normCpf(user);
-  const found = LOGINS.find(l=> l.cpf===cpfNorm && l.senha===pass && cpfNorm.length===11);
-  if(found){
-    CURRENT_USER = {role:'tecnico', colaborador:found.colaborador, cpf:found.cpf};
+
+  const foundCoord = LOGINS.find(l=> l.role==='coordenacao' && l.login && l.login.toLowerCase()===user.toLowerCase() && l.senha===pass);
+  if(foundCoord){
+    CURRENT_USER = {role:'coordenacao', id:foundCoord.id, nome:foundCoord.nome, login:foundCoord.login, email:foundCoord.email||''};
     afterLogin();
     return;
   }
-  errEl.textContent = 'Usuário ou senha inválidos. Verifique o CPF/usuário e a senha.';
+
+  const cpfNorm = normCpf(user);
+  const foundTec = LOGINS.find(l=> l.role==='tecnico' && l.cpf===cpfNorm && l.senha===pass && cpfNorm.length===11);
+  if(foundTec){
+    CURRENT_USER = {role:'tecnico', colaborador:foundTec.colaborador, cpf:foundTec.cpf};
+    afterLogin();
+    return;
+  }
+
+  errEl.textContent = 'Usuário ou senha inválidos. Verifique o usuário/CPF e a senha.';
   errEl.style.display='block';
 }
 
@@ -2036,13 +2218,16 @@ function afterLogin(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('appRoot').style.display='flex';
   const badge = document.getElementById('userBadge');
+  const gear = `<button class="profile-gear-btn" onclick="abrirPerfilModal()" title="Editar meu perfil">⚙</button>`;
   if(CURRENT_USER.role==='master'){
-    badge.innerHTML = `Master · admin <span class="role-tag">ADMIN</span>`;
+    badge.innerHTML = `${gear}${ADMIN_PROFILE.nome} · ${ADMIN_PROFILE.usuario} <span class="role-tag">GERÊNCIA</span>`;
+  } else if(CURRENT_USER.role==='coordenacao'){
+    badge.innerHTML = `${gear}${CURRENT_USER.nome} <span class="role-tag">COORDENAÇÃO</span>`;
   } else {
     badge.innerHTML = `<span class="user-badge-link" onclick="goToPage('minhaescala')" title="Ver minha escala de trabalho">${CURRENT_USER.colaborador}</span> <span class="role-tag">TÉCNICO</span>`;
   }
   applyRoleVisibility();
-  goToPage(CURRENT_USER.role==='master' ? 'dashboard' : 'minha');
+  goToPage((CURRENT_USER.role==='master'||CURRENT_USER.role==='coordenacao') ? 'dashboard' : 'minha');
 }
 
 function applyRoleVisibility(){
@@ -2050,7 +2235,18 @@ function applyRoleVisibility(){
     const roles = (li.dataset.roles||'all').split(',');
     li.style.display = roles.includes('all') || roles.includes(CURRENT_USER.role) ? '' : 'none';
   });
-  document.getElementById('topbarActionsAdmin').style.display = CURRENT_USER.role==='master' ? 'flex':'none';
+  document.getElementById('topbarActionsAdmin').style.display = (CURRENT_USER.role==='master'||CURRENT_USER.role==='coordenacao') ? 'flex':'none';
+  // Coordenação/Supervisão não importa arquivos — só a Gerência
+  const etImportCard = document.getElementById('etImportCard');
+  if(etImportCard) etImportCard.style.display = (CURRENT_USER.role==='coordenacao') ? 'none' : '';
+}
+
+/* Nome de exibição de quem está logado agora, usado em campos "criado por" de vários módulos */
+function nomeNivelAtual(){
+  if(!CURRENT_USER) return 'Sistema';
+  if(CURRENT_USER.role==='master') return 'Gerência';
+  if(CURRENT_USER.role==='coordenacao') return `Coordenação (${CURRENT_USER.nome})`;
+  return CURRENT_USER.colaborador || 'Sistema';
 }
 
 function logout(){
@@ -2065,26 +2261,75 @@ function logout(){
 document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
 document.getElementById('loginUser').addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
 
-/* ---------- Cadastro de login (Master) ---------- */
+/* ---------- Cadastro de login (Gerência e Coordenação/Supervisão) ---------- */
 function fillRegColabOptions(){
   const colabs = uniqueSorted(RAW_DATA.map(r=>r.colaborador));
   populateSelect(document.getElementById('regColab'), colabs, 'Selecione um colaborador');
 }
 document.getElementById('regCpf')?.addEventListener('input', e=>{ e.target.value = maskCpf(e.target.value); });
 
+/* Só a Gerência pode cadastrar Coordenação/Supervisão — a opção só aparece pra ela */
+function fillRegTipoOptions(){
+  const opcaoCoord = document.getElementById('regOpcaoCoord');
+  const ehMaster = !!(CURRENT_USER && CURRENT_USER.role==='master');
+  if(opcaoCoord) opcaoCoord.style.display = ehMaster ? '' : 'none';
+  const tipoSel = document.getElementById('regTipo');
+  if(tipoSel) tipoSel.value = 'tecnico'; // sempre reabre a página com "Técnico" selecionado por padrão
+  regAtualizarCampos();
+}
+function regAtualizarCampos(){
+  const tipo = document.getElementById('regTipo').value;
+  document.getElementById('regCamposTecnico').style.display = tipo==='tecnico' ? 'block':'none';
+  document.getElementById('regCamposCoord').style.display = tipo==='coordenacao' ? 'block':'none';
+  document.getElementById('regAjuda').textContent = tipo==='tecnico'
+    ? 'O técnico usará o CPF cadastrado como usuário e a senha definida aqui para entrar. Ao logar, ele verá apenas a pontuação diária do colaborador vinculado — nunca os dados dos demais.'
+    : 'A Coordenação/Supervisão usa o usuário e a senha definidos aqui para entrar. Tem acesso a tudo que a Gerência vê, exceto importar arquivos (Excel/outros dados) e cadastrar novos logins de Coordenação/Supervisão.';
+}
+
 function registrarLogin(){
-  const cpf = normCpf(document.getElementById('regCpf').value);
+  const tipo = document.getElementById('regTipo').value;
   const senha = document.getElementById('regSenha').value;
-  const colab = document.getElementById('regColab').value;
   const statusEl = document.getElementById('regStatus');
   statusEl.className='upload-status'; statusEl.style.display='none';
 
-  if(cpf.length!==11){ statusEl.className='upload-status err'; statusEl.textContent='CPF inválido. Informe os 11 dígitos.'; statusEl.style.display='block'; return; }
-  if(!senha){ statusEl.className='upload-status err'; statusEl.textContent='Defina uma senha para o técnico.'; statusEl.style.display='block'; return; }
-  if(!colab){ statusEl.className='upload-status err'; statusEl.textContent='Selecione o colaborador vinculado.'; statusEl.style.display='block'; return; }
-  if(LOGINS.some(l=>l.cpf===cpf)){ statusEl.className='upload-status err'; statusEl.textContent='Já existe um login cadastrado para esse CPF.'; statusEl.style.display='block'; return; }
+  if(!senha){ statusEl.className='upload-status err'; statusEl.textContent='Defina uma senha.'; statusEl.style.display='block'; return; }
+  if(senha.length<8){ statusEl.className='upload-status err'; statusEl.textContent='A senha precisa ter pelo menos 8 caracteres.'; statusEl.style.display='block'; return; }
 
-  LOGINS.push({id:Date.now()+Math.random(), cpf, senha, colaborador: colab});
+  if(tipo==='coordenacao'){
+    if(!(CURRENT_USER && CURRENT_USER.role==='master')){
+      statusEl.className='upload-status err'; statusEl.textContent='Apenas a Gerência pode cadastrar login de Coordenação/Supervisão.'; statusEl.style.display='block'; return;
+    }
+    const nome = document.getElementById('regNomeCoord').value.trim();
+    const usuario = document.getElementById('regUsuarioCoord').value.trim();
+    const email = document.getElementById('regEmailCoord').value.trim();
+    if(!nome){ statusEl.className='upload-status err'; statusEl.textContent='Informe o nome completo.'; statusEl.style.display='block'; return; }
+    if(!usuario){ statusEl.className='upload-status err'; statusEl.textContent='Informe o usuário de login.'; statusEl.style.display='block'; return; }
+    if(usuario.toLowerCase()==='admin'){ statusEl.className='upload-status err'; statusEl.textContent='Esse nome de usuário é reservado para a Gerência.'; statusEl.style.display='block'; return; }
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ statusEl.className='upload-status err'; statusEl.textContent='E-mail inválido.'; statusEl.style.display='block'; return; }
+    if(LOGINS.some(l=>l.role==='coordenacao' && l.login.toLowerCase()===usuario.toLowerCase())){
+      statusEl.className='upload-status err'; statusEl.textContent='Já existe um login de Coordenação/Supervisão com esse usuário.'; statusEl.style.display='block'; return;
+    }
+    LOGINS.push({id:etUid(), role:'coordenacao', nome, login:usuario, senha, email});
+    loginsSave();
+    document.getElementById('regNomeCoord').value='';
+    document.getElementById('regUsuarioCoord').value='';
+    document.getElementById('regEmailCoord').value='';
+    document.getElementById('regSenha').value='';
+    statusEl.className='upload-status ok';
+    statusEl.textContent = `Login de Coordenação/Supervisão cadastrado para ${nome}. Já pode entrar com o usuário "${usuario}" e a senha definida.`;
+    statusEl.style.display='block';
+    renderLoginList();
+    return;
+  }
+
+  const cpf = normCpf(document.getElementById('regCpf').value);
+  const colab = document.getElementById('regColab').value;
+  if(cpf.length!==11){ statusEl.className='upload-status err'; statusEl.textContent='CPF inválido. Informe os 11 dígitos.'; statusEl.style.display='block'; return; }
+  if(!colab){ statusEl.className='upload-status err'; statusEl.textContent='Selecione o colaborador vinculado.'; statusEl.style.display='block'; return; }
+  if(LOGINS.some(l=>l.role==='tecnico' && l.cpf===cpf)){ statusEl.className='upload-status err'; statusEl.textContent='Já existe um login cadastrado para esse CPF.'; statusEl.style.display='block'; return; }
+
+  LOGINS.push({id:etUid(), role:'tecnico', cpf, senha, colaborador: colab});
+  loginsSave();
   document.getElementById('regCpf').value='';
   document.getElementById('regSenha').value='';
   document.getElementById('regColab').value='';
@@ -2095,18 +2340,122 @@ function registrarLogin(){
 }
 function removeLogin(id){
   LOGINS = LOGINS.filter(l=>l.id!==id);
+  loginsSave();
   renderLoginList();
+}
+function resetarSenhaLogin(id){
+  const entry = LOGINS.find(l=>l.id===id);
+  if(!entry) return;
+  const nome = entry.nome || entry.colaborador || 'este login';
+  const nova = window.prompt(`Nova senha para ${nome} (mínimo 8 caracteres):`);
+  if(nova===null) return;
+  if(nova.length<8){ alert('A senha precisa ter pelo menos 8 caracteres.'); return; }
+  entry.senha = nova;
+  loginsSave();
+  alert(`Senha de ${nome} redefinida com sucesso. Avise a pessoa da nova senha por um canal seguro.`);
 }
 function renderLoginList(){
   const el = document.getElementById('loginList');
   if(!el) return;
-  if(!LOGINS.length){ el.innerHTML = '<div class="empty-note" style="padding:14px 0;">Nenhum login cadastrado ainda.</div>'; return; }
-  const ordenados = [...LOGINS].sort((a,b)=>a.colaborador.localeCompare(b.colaborador,'pt'));
-  el.innerHTML = ordenados.map(l=>`
-    <div class="rank-row" style="padding:8px 4px;">
-      <div class="rank-name"><b style="font-size:12.5px;">${l.colaborador}</b><span>CPF: ${maskCpf(l.cpf)}</span></div>
-      <button class="btn btn-outline btn-sm" style="color:var(--critico);border-color:#fbd2d8;" onclick="removeLogin(${l.id})">Remover</button>
-    </div>`).join('');
+  // Coordenação/Supervisão só enxerga os logins de Técnico (não vê outros logins de gestão)
+  let lista = (CURRENT_USER && CURRENT_USER.role==='coordenacao') ? LOGINS.filter(l=>l.role==='tecnico') : LOGINS;
+  if(!lista.length){ el.innerHTML = '<div class="empty-note" style="padding:14px 0;">Nenhum login cadastrado ainda.</div>'; return; }
+  const ordenados = [...lista].sort((a,b)=> (a.role||'').localeCompare(b.role||'') || (a.colaborador||a.nome||'').localeCompare(b.colaborador||b.nome||'','pt'));
+  el.innerHTML = ordenados.map(l=>{
+    if(l.role==='coordenacao'){
+      return `<div class="rank-row" style="padding:8px 4px;">
+        <div class="rank-name"><b style="font-size:12.5px;">${l.nome}</b><span>Usuário: ${l.login} — Coordenação/Supervisão${l.email?` · ${l.email}`:''}</span></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="resetarSenhaLogin('${l.id}')">Redefinir senha</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--critico);border-color:#fbd2d8;" onclick="removeLogin('${l.id}')">Remover</button>
+        </div>
+      </div>`;
+    }
+    return `<div class="rank-row" style="padding:8px 4px;">
+      <div class="rank-name"><b style="font-size:12.5px;">${l.colaborador}</b><span>CPF: ${maskCpf(l.cpf)} — Técnico</span></div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="resetarSenhaLogin('${l.id}')">Redefinir senha</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--critico);border-color:#fbd2d8;" onclick="removeLogin('${l.id}')">Remover</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- Meu Perfil (engrenagem no topo) — Gerência e Coordenação/Supervisão ---------- */
+function abrirPerfilModal(){
+  if(!CURRENT_USER || CURRENT_USER.role==='tecnico') return;
+  const ehMaster = CURRENT_USER.role==='master';
+  document.getElementById('perfilNome').value = ehMaster ? ADMIN_PROFILE.nome : CURRENT_USER.nome;
+  document.getElementById('perfilLogin').value = ehMaster ? ADMIN_PROFILE.usuario : CURRENT_USER.login;
+  document.getElementById('perfilEmail').value = ehMaster ? (ADMIN_PROFILE.email||'') : (CURRENT_USER.email||'');
+  document.getElementById('perfilSenhaNova').value = '';
+  document.getElementById('perfilSenhaConfirma').value = '';
+  document.getElementById('perfilStatus').style.display = 'none';
+  document.getElementById('perfilLoginLabel').textContent = ehMaster ? 'Usuário' : 'Usuário de login';
+  document.getElementById('perfilSubtitulo').textContent = ehMaster
+    ? 'Você é a Gerência (acesso equivalente ao admin). Altere seus dados de acesso quando quiser.'
+    : 'Altere seus dados de acesso quando quiser — inclusive a senha padrão que você recebeu.';
+  document.getElementById('perfilModalBg').classList.add('show');
+}
+function fecharPerfilModal(){ document.getElementById('perfilModalBg').classList.remove('show'); }
+
+function salvarPerfil(){
+  if(!CURRENT_USER || CURRENT_USER.role==='tecnico') return;
+  const ehMaster = CURRENT_USER.role==='master';
+  const nome = document.getElementById('perfilNome').value.trim();
+  const login = document.getElementById('perfilLogin').value.trim();
+  const email = document.getElementById('perfilEmail').value.trim();
+  const novaSenha = document.getElementById('perfilSenhaNova').value;
+  const confirmaSenha = document.getElementById('perfilSenhaConfirma').value;
+  const statusEl = document.getElementById('perfilStatus');
+  statusEl.className='upload-status'; statusEl.style.display='none';
+
+  if(!nome){ statusEl.className='upload-status err'; statusEl.textContent='Informe o nome completo.'; statusEl.style.display='block'; return; }
+  if(!login){ statusEl.className='upload-status err'; statusEl.textContent='Informe o usuário de login.'; statusEl.style.display='block'; return; }
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ statusEl.className='upload-status err'; statusEl.textContent='E-mail inválido.'; statusEl.style.display='block'; return; }
+  if(novaSenha || confirmaSenha){
+    if(novaSenha.length<8){ statusEl.className='upload-status err'; statusEl.textContent='A nova senha precisa ter pelo menos 8 caracteres.'; statusEl.style.display='block'; return; }
+    if(novaSenha!==confirmaSenha){ statusEl.className='upload-status err'; statusEl.textContent='As senhas não coincidem.'; statusEl.style.display='block'; return; }
+  }
+
+  const loginLower = login.toLowerCase();
+  if(ehMaster){
+    if(LOGINS.some(l=>l.role==='coordenacao' && l.login.toLowerCase()===loginLower)){
+      statusEl.className='upload-status err'; statusEl.textContent='Já existe um login de Coordenação/Supervisão com esse usuário.'; statusEl.style.display='block'; return;
+    }
+    ADMIN_PROFILE.nome = nome;
+    ADMIN_PROFILE.usuario = login;
+    ADMIN_PROFILE.email = email;
+    if(novaSenha) ADMIN_PROFILE.senha = novaSenha;
+    adminProfileSave();
+  } else {
+    if(loginLower==='admin' || loginLower===ADMIN_PROFILE.usuario.toLowerCase()){
+      statusEl.className='upload-status err'; statusEl.textContent='Esse nome de usuário é reservado para a Gerência.'; statusEl.style.display='block'; return;
+    }
+    if(LOGINS.some(l=>l.id!==CURRENT_USER.id && l.role==='coordenacao' && l.login.toLowerCase()===loginLower)){
+      statusEl.className='upload-status err'; statusEl.textContent='Já existe outro login de Coordenação/Supervisão com esse usuário.'; statusEl.style.display='block'; return;
+    }
+    const entry = LOGINS.find(l=>l.id===CURRENT_USER.id);
+    if(entry){
+      entry.nome = nome; entry.login = login; entry.email = email;
+      if(novaSenha) entry.senha = novaSenha;
+      loginsSave();
+    }
+    CURRENT_USER.nome = nome; CURRENT_USER.login = login; CURRENT_USER.email = email;
+  }
+
+  statusEl.className='upload-status ok';
+  statusEl.textContent = 'Perfil atualizado com sucesso.';
+  statusEl.style.display='block';
+
+  const badge = document.getElementById('userBadge');
+  const gear = `<button class="profile-gear-btn" onclick="abrirPerfilModal()" title="Editar meu perfil">⚙</button>`;
+  if(ehMaster){
+    badge.innerHTML = `${gear}${ADMIN_PROFILE.nome} · ${ADMIN_PROFILE.usuario} <span class="role-tag">GERÊNCIA</span>`;
+  } else {
+    badge.innerHTML = `${gear}${CURRENT_USER.nome} <span class="role-tag">COORDENAÇÃO</span>`;
+  }
+  renderLoginList();
 }
 
 /* ---------- Minha Pontuação (Técnico) ---------- */
@@ -3983,7 +4332,7 @@ function etSalvarEscala(){
   } else {
     ET_ATUAL.id = etUid();
     ET_ATUAL.criadoEm = new Date().toISOString();
-    ET_ATUAL.criadoPor = (CURRENT_USER && CURRENT_USER.role==='master') ? 'Master' : 'Sistema';
+    ET_ATUAL.criadoPor = nomeNivelAtual();
     ET_DATA.escalas.push(JSON.parse(JSON.stringify(ET_ATUAL)));
   }
   etSave();
@@ -5007,7 +5356,7 @@ function jfSalvar(){
     JF_EDIT_ID = jfUid();
     JF_DATA.registros.push({
       id: JF_EDIT_ID, identificador, ...dados, status:'Salvo',
-      criadoPor: (CURRENT_USER && CURRENT_USER.role==='master') ? 'Master' : 'Sistema',
+      criadoPor: nomeNivelAtual(),
       criadoEm: hoje.toISOString(), atualizadoEm: hoje.toISOString()
     });
   }
@@ -5921,10 +6270,10 @@ function renderCurrentStats(){
 
 /* ---------- NAVEGAÇÃO ---------- */
 const pages = ['dashboard','colaboradores','ranking','meta','protocolos','calendario','importar','cadastrologin','relatorios','ferias','escalatrabalho','justificativa','techflow','minha','minhaescala'];
-const PAGE_ROLES = { dashboard:'master', colaboradores:'master', ranking:'master', meta:'master', protocolos:'master', calendario:'master', importar:'master', cadastrologin:'master', relatorios:'master', ferias:'master', escalatrabalho:'master', justificativa:'master', techflow:'master', minha:'tecnico', minhaescala:'tecnico' };
+const PAGE_ROLES = { dashboard:['master','coordenacao'], colaboradores:['master','coordenacao'], ranking:['master','coordenacao'], meta:['master','coordenacao'], protocolos:['master','coordenacao'], calendario:['master','coordenacao'], importar:['master'], cadastrologin:['master','coordenacao'], relatorios:['master','coordenacao'], ferias:['master','coordenacao'], escalatrabalho:['master','coordenacao'], justificativa:['master','coordenacao'], techflow:['master','coordenacao'], minha:['tecnico'], minhaescala:['tecnico'] };
 function goToPage(name){
   if(!CURRENT_USER) return;
-  if(PAGE_ROLES[name] && PAGE_ROLES[name]!==CURRENT_USER.role) return; // bloqueia navegação fora do papel do usuário
+  if(PAGE_ROLES[name] && !PAGE_ROLES[name].includes(CURRENT_USER.role)) return; // bloqueia navegação fora do papel do usuário
   pages.forEach(p=>{
     document.getElementById('page'+p.charAt(0).toUpperCase()+p.slice(1)).style.display = (p===name)?'block':'none';
   });
@@ -5935,7 +6284,7 @@ function goToPage(name){
   if(name==='protocolos') renderProtocolos();
   if(name==='calendario') renderCalendario();
   if(name==='importar') renderCurrentStats();
-  if(name==='cadastrologin'){ fillRegColabOptions(); renderLoginList(); }
+  if(name==='cadastrologin'){ fillRegColabOptions(); fillRegTipoOptions(); renderLoginList(); }
   if(name==='relatorios'){ fillPdfOptions(); renderPdfPreview(); }
   if(name==='ferias'){ fillFeriasColabList(); fillFeriasMesAno(); renderFeriasPage(); }
   if(name==='escalatrabalho') etPageInit();
@@ -5946,11 +6295,19 @@ function goToPage(name){
 
   // Evita ações de exportar/imprimir duplicadas: a Escala de Trabalho já tem sua própria barra de ações
   const topbarAdmin = document.getElementById('topbarActionsAdmin');
-  if(topbarAdmin) topbarAdmin.style.display = (name==='escalatrabalho') ? 'none' : (CURRENT_USER.role==='master' ? 'flex':'none');
+  if(topbarAdmin) topbarAdmin.style.display = (name==='escalatrabalho') ? 'none' : ((CURRENT_USER.role==='master'||CURRENT_USER.role==='coordenacao') ? 'flex':'none');
 }
 document.querySelectorAll('#navList a').forEach(a=>{
-  a.addEventListener('click', ()=>goToPage(a.dataset.page));
+  a.addEventListener('click', ()=>{ goToPage(a.dataset.page); closeSidebar(); });
 });
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebarBackdrop').classList.toggle('show');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('show');
+}
 
 /* ---------- FILTER EVENTS ---------- */
 ['fColab','fPeriodo','fDataIni','fDataFim','fEstado','fCidade','fTipo','fSolic'].forEach(id=>{
